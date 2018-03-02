@@ -4,7 +4,12 @@ import re
 from typing import Optional
 
 
-__all__ = ['str_to_bin', 'str_to_hex', 'bin_to_str', 'hex_to_str']
+__all__ = ['escape_html', 'str_to_bin', 'str_to_hex', 'bin_to_str', 'hex_to_str']
+
+
+def escape_html(text: str) -> str:
+    """Replaces all angle brackets with HTML entities."""
+    return text.replace('<', '&lt;').replace('>', '&gt;')
 
 
 def split_every_n_characters(n: int, s: str) -> list:

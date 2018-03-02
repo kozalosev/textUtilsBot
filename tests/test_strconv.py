@@ -3,6 +3,12 @@ from app.strconv import *
 from app.strconv import split_every_n_characters
 
 
+def test_escape_html():
+    s = "Ensure <b>text</b> don't\nhave <i>HTML</i> tags"
+    e = "Ensure &lt;b&gt;text&lt;/b&gt; don't\nhave &lt;i&gt;HTML&lt;/i&gt; tags"
+    assert escape_html(s) == e
+
+
 class TestSplitAtEachNthCharacter:
     def test_3_bytes(self):
         s = "101010101010101010101010"
