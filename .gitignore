@@ -1,0 +1,13 @@
+.idea/
+.pytest_cache/
+__pycache__/
+
+bin/
+share/
+Scripts/
+[Ii]nclude/
+[Ll]ib/
+pyvenv.cfg
+
+app/config.py
+log.txt
