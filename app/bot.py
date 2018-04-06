@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import string
 import logging
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery
@@ -51,26 +52,27 @@ def empty_suggest(chat: Chat, _) -> None:
 
 
 @bot.inline
-def shrug_shoulders(request: InlineQuery) -> None:
-    str_from_bin = bin_to_str(request.query)
-    str_from_hex = hex_to_str(request.query)
-
+def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
 
-    if str_from_bin:
-        add_article("Притвориться человеком", str_from_bin)
-    elif str_from_hex:
-        add_article("Просто текст", str_from_hex)
-    else:
-        lentach_logo = "{} ¯\_(ツ)_/¯".format(request.query).lstrip()
-        add_article("Пожать плечами", lentach_logo)
-
-        if request.query:
-            binary = str_to_bin(request.query)
-            hex_str = str_to_hex(request.query)
-            add_article("Говорить, как робот", binary)
-            add_article("Типа программист", hex_str)
+    if all(map(lambda char: char in (0, 1), request.query)):
+        str_from_bin = bin_to_str(request.query)
+        if str_from_bin:
+            add_article("Притвориться человеком", str_from_bin)
+    elif all(map(lambda char: char in string.hexdigits, request.query)):
+        str_from_hex = hex_to_str(request.query)
+        if str_from_hex:
+            add_article("Просто текст", str_from_hex)
+    elif all(map(lambda char: char in string.ascii_letters + string.digits + '+/=', request.query)):
+        str_from_base64 = base64_to_str(request.query)
+        if str_from_base64:
+            add_article("Дешифровка", str_from_base64)
+    elif request.query:
+        add_article("Проблемы с раскладкой?", switch_keyboard_layout(request.query))
+        add_article("Говорить, как робот", str_to_bin(request.query))
+        add_article("Типа программист", str_to_hex(request.query))
+        add_article("Шифровка", str_to_base64(request.query))
 
     request.answer(results.build_list())
 

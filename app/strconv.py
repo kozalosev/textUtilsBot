@@ -1,10 +1,14 @@
 """Utility functions for string conversions."""
 
 import re
+import string
+import base64
+import binascii
 from typing import Optional
 
 
-__all__ = ['escape_html', 'str_to_bin', 'str_to_hex', 'bin_to_str', 'hex_to_str']
+__all__ = ['escape_html', 'str_to_bin', 'str_to_hex', 'str_to_base64', 'bin_to_str', 'hex_to_str', 'base64_to_str',
+           'switch_keyboard_layout']
 
 
 def escape_html(text: str) -> str:
@@ -40,6 +44,10 @@ def str_to_hex(s: str) -> str:
     return " ".join(bl)
 
 
+def str_to_base64(s: str) -> str:
+    return base64.encodebytes(bytes(s, 'UTF-8')).decode('UTF-8').rstrip()
+
+
 def bin_to_str(b: str) -> Optional[str]:
     """
     '01001000 01100101 01101100 01101100 01101111' => 'Hello'
@@ -66,3 +74,27 @@ def hex_to_str(s: str) -> Optional[str]:
         return bytearray.fromhex(s).decode()
     except ValueError:
         return None
+
+
+def base64_to_str(b: str) -> Optional[str]:
+    try:
+        return base64.decodebytes(bytes(b, 'UTF-8')).decode('UTF-8')
+    except binascii.Error or UnicodeDecodeError:
+        return None
+
+
+def switch_keyboard_layout(s: str) -> str:
+    en_weight = sum(c in string.ascii_letters for c in s)
+    ru_weight = sum(c in _russian_letters for c in s)
+    if ru_weight > en_weight:
+        return s.translate(_layouts_correspondings_table_ru_en)
+    else:
+        return s.translate(_layouts_correspondings_table_en_ru)
+
+
+_russian_letters = "абвгдеёжзийклмонпрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+_latin_layout = "qwertyuiop[]asdfghjkl;'\zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"|ZXCVBNM<>?@#$^&"
+_cyrillic_layout = "йцукенгшщзхъфывапролджэ\ячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭ/ЯЧСМИТЬБЮ,\"№;:?"
+
+_layouts_correspondings_table_en_ru = str.maketrans(_latin_layout, _cyrillic_layout)
+_layouts_correspondings_table_ru_en = str.maketrans(_cyrillic_layout, _latin_layout)

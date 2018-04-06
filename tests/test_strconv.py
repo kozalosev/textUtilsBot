@@ -55,3 +55,35 @@ class TestHex:
     def test_fails(self):
         assert hex_to_str(self.f1) is None
         assert hex_to_str(self.f2) is None
+
+
+class TestBase64:
+    s = "Hello World"
+    b = "SGVsbG8gV29ybGQ="
+    sr = "Привет, мир!"
+    br = "0J/RgNC40LLQtdGCLCDQvNC40YAh"
+    f = "Не base64-строка"
+
+    def test_from_str(self):
+        assert str_to_base64(self.s) == self.b
+
+    def test_to_str(self):
+        assert base64_to_str(self.b) == self.s
+
+    def test_russian(self):
+        assert str_to_base64(self.sr) == self.br
+        assert base64_to_str(self.br) == self.sr
+
+    def test_fails(self):
+        assert base64_to_str(self.f) is None
+
+
+class TestLayoutSwitcher:
+    en = "J,kf;fkcz c hfcrkflrjq"
+    ru = "Облажался с раскладкой"
+
+    def test_en_ru(self):
+        assert switch_keyboard_layout(self.en) == self.ru
+
+    def test_ru_en(self):
+        assert switch_keyboard_layout(self.ru) == self.en
