@@ -6,10 +6,9 @@ OWNER_ID = 12345678
 REPO_URL = "github.com/username/textUtilsBot"
 
 HOST = "bots.example.org"
-APP_PORT = 8080         # A port for a local server, which the application establishes.
-SERVER_PORT = 8443      # A port on a front-end web server.
+SERVER_PORT = 8443                        # A port on a front-end web server.
+UNIX_SOCKET = "/tmp/textUtilsBot.sock"    # A Unix domain socket to communicate with that web server.
 
 # Set to 'False' for production use.
-# Determines whether polling or web hooks will be used.
-# Also determines what will be used for logging messages: either stderr or a file.
+# Besides the level of verbosity, determines whether polling or webhooks will be used.
 DEBUG = True

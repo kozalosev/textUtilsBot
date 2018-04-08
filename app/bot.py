@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+import os
 import string
-import logging
 import asyncio
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery
@@ -84,8 +84,8 @@ if __name__ == '__main__':
         loop.run_until_complete(bot.delete_webhook())
         bot.run(debug=True)
     else:
-        logging.basicConfig(filename='log.txt', filemode='w')
         webhook_future = bot.set_webhook("https://{}:{}/{}/{}".format(HOST, SERVER_PORT, NAME, TOKEN))
         loop.run_until_complete(webhook_future)
         app = bot.create_webhook_app('/{}/{}'.format(NAME, TOKEN), loop)
-        web.run_app(app, host='127.0.0.1', port=APP_PORT)
+        os.umask(0o137)    # rw-r----- for the unix socket
+        web.run_app(app, path=UNIX_SOCKET)
