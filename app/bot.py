@@ -2,6 +2,7 @@
 
 import string
 import logging
+import asyncio
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery
 
@@ -78,12 +79,13 @@ def inline_request_handler(request: InlineQuery) -> None:
 
 
 if __name__ == '__main__':
-    bot.delete_webhook()
+    loop = asyncio.get_event_loop()
     if DEBUG:
-        logging.basicConfig(level=logging.DEBUG)
-        bot.run()
+        loop.run_until_complete(bot.delete_webhook())
+        bot.run(debug=True)
     else:
         logging.basicConfig(filename='log.txt', filemode='w')
-        bot.set_webhook("https://{}:{}/{}/{}".format(HOST, SERVER_PORT, NAME, TOKEN))
-        app = bot.create_webhook_app('/{}/{}'.format(NAME, TOKEN))
+        webhook_future = bot.set_webhook("https://{}:{}/{}/{}".format(HOST, SERVER_PORT, NAME, TOKEN))
+        loop.run_until_complete(webhook_future)
+        app = bot.create_webhook_app('/{}/{}'.format(NAME, TOKEN), loop)
         web.run_app(app, host='127.0.0.1', port=APP_PORT)
