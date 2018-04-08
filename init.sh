@@ -11,6 +11,8 @@ echo
 
 echo "Creating a configuration file..."
 cp examples/config.py app/config.py
+sudo chgrp www-data app/config.py
+chmod o-r app/config.py
 echo
 
 echo "Done. Don't forget to replace fake values in 'app/config.py' with your actual ones."
