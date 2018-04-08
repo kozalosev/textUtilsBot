@@ -79,8 +79,8 @@ class TestBase64:
 
 
 class TestLayoutSwitcher:
-    en = "J,kf;fkcz c hfcrkflrjq"
-    ru = "Облажался с раскладкой"
+    en = "J,kf;fkcz c hfcrkflrjq b ,erdjq @`@"
+    ru = "Облажался с раскладкой и буквой \"ё\""
 
     def test_en_ru(self):
         assert switch_keyboard_layout(self.en) == self.ru
