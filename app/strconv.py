@@ -54,6 +54,7 @@ def str_to_base64(s: str) -> str:
 def bin_to_str(b: str) -> Optional[str]:
     """
     '01001000 01100101 01101100 01101100 01101111' => 'Hello'
+    'usual text' => None
     """
     b = re.sub("\s+", "", b)
     str_bytes = split_every_n_characters(8, b)
@@ -72,6 +73,7 @@ def bin_to_str(b: str) -> Optional[str]:
 def hex_to_str(s: str) -> Optional[str]:
     """
     '48 65 6c 6c 6f 20 57 6f 72 6c 64' => 'Hello World'
+    'usual text' => None
     """
     try:
         return bytearray.fromhex(s).decode()
@@ -82,14 +84,19 @@ def hex_to_str(s: str) -> Optional[str]:
 def base64_to_str(b: str) -> Optional[str]:
     """
     'SGVsbG8gV29ybGQ=' => 'Hello World'
+    'usual text' => None
     """
     try:
         return base64.decodebytes(bytes(b, 'UTF-8')).decode('UTF-8')
-    except binascii.Error or UnicodeDecodeError:
+    except (binascii.Error, UnicodeDecodeError):
         return None
 
 
 def switch_keyboard_layout(s: str) -> str:
+    """
+    'ghbdtn' => 'привет'
+    'руддщ' => 'hello'
+    """
     en_weight = sum(c in string.ascii_letters for c in s)
     ru_weight = sum(c in _russian_letters for c in s)
     if ru_weight > en_weight:
