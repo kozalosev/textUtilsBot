@@ -21,7 +21,8 @@ bot = Bot(api_token=TOKEN)
 @bot.command("/help")
 async def start(chat: Chat, _) -> None:
     await chat.send_text("Привет! Я могу тебе помочь с различными преобразованием текста. Просто введи моё имя в "
-                         "строке ввода сообщения через собачку, а дальше пиши любой текст. Работает в любом чате!")
+                         "строке ввода сообщения через собачку, а дальше пиши любой текст. Работает в любом чате! "
+                         "Но не злоупотребляй длинными сообщениями, так как я не смогу их обработать!")
     chat.send_text("Если ты хочешь предложить какое-то новое преобразование, отправь мне текст по следующему шаблону:\n"
                    "`/suggest Хочу предложить...`", parse_mode="Markdown")
 
@@ -57,17 +58,17 @@ def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
 
-    if all(map(lambda char: char in (0, 1, ' '), request.query)):
+    if all(char in ('0', '1', ' ') for char in request.query):
         str_from_bin = bin_to_str(request.query)
         if str_from_bin:
             add_article("Притвориться человеком", str_from_bin)
-    elif all(map(lambda char: char in string.hexdigits + ' ', request.query)):
+    elif all(char in string.hexdigits + ' ' for char in request.query):
         str_from_hex = hex_to_str(request.query)
         if str_from_hex:
             add_article("Просто текст", str_from_hex)
     else:
         str_from_base64 = None
-        if all(map(lambda char: char in string.ascii_letters + string.digits + '+/=', request.query)):
+        if all(char in string.ascii_letters + string.digits + '+/=' for char in request.query):
             str_from_base64 = base64_to_str(request.query)
 
         if str_from_base64:

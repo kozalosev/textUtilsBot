@@ -48,7 +48,7 @@ def str_to_base64(s: str) -> str:
     """
     'Hello World' => 'SGVsbG8gV29ybGQ='
     """
-    return base64.encodebytes(bytes(s, 'UTF-8')).decode('UTF-8').rstrip()
+    return base64.b64encode(bytes(s, 'UTF-8')).decode('UTF-8')
 
 
 def bin_to_str(b: str) -> Optional[str]:
@@ -87,7 +87,7 @@ def base64_to_str(b: str) -> Optional[str]:
     'usual text' => None
     """
     try:
-        return base64.decodebytes(bytes(b, 'UTF-8')).decode('UTF-8')
+        return base64.b64decode(bytes(b, 'UTF-8')).decode('UTF-8')
     except (binascii.Error, UnicodeDecodeError):
         return None
 
