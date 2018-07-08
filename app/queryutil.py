@@ -31,9 +31,10 @@ def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_descripti
     """Generate the function that simplifies the creation of articles which text and description must be the same.
     :param storage: an instance of `InlineQueryResultsBuilder`
     :param max_description: a maximum length of the description string
-    :return: a function `(title: str, text: str) -> None` which you should use to add new articles to the storage
+    :return: a function `(title: str, text: str, **kwargs) -> None` which you should use to add new articles to the
+        storage
     """
-    def add_article(title: str, text: str) -> None:
+    def add_article(title: str, text: str, **kwargs) -> None:
         if len(text) > max_description:
             description = text[:max_description-1].rstrip() + '…'
         else:
@@ -44,6 +45,52 @@ def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_descripti
             description=description,
             input_message_content={
                 'message_text': text
-            }
+            },
+            **kwargs
         )
     return add_article
+
+
+class InlineKeyboardBuilder:
+    """A builder to simplify creation of inline keyboards.
+
+    Usage:
+    >>> builder = InlineKeyboardBuilder()
+    >>> row1 = builder.add_row().add("Button 1").add("Button 2")
+    >>> row2 = builder.add_row().add("Button 3").add("Button 4")
+    >>> keyboard = builder.build()
+    """
+
+    class RowBuilder:
+        """An internal builder used to create a DSL for rows."""
+
+        def __init__(self):
+            self._cols = []
+
+        def add(self, text: str, **kwargs) -> "InlineKeyboardBuilder.RowBuilder":
+            """Append a new button to the internal list. Can be used in chains of methods.
+            :param text: see https://core.telegram.org/bots/api#inlinekeyboardbutton
+            """
+
+            obj = kwargs
+            obj['text'] = text
+            self._cols.append(obj)
+            return self
+
+        def build(self) -> list:
+            """:return: a copy of the internal list"""
+            return self._cols.copy()
+
+    def __init__(self):
+        self._rows = []
+
+    def add_row(self) -> "InlineKeyboardBuilder.RowBuilder":
+        """:return: a builder object for you to fill it."""
+        row_builder = InlineKeyboardBuilder.RowBuilder()
+        self._rows.append(row_builder)
+        return row_builder
+
+    def build(self) -> dict:
+        """:return: a dict prepared for the Bot API"""
+        keyboard = [row.build() for row in self._rows.copy()]
+        return {'inline_keyboard': keyboard}

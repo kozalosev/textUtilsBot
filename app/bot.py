@@ -3,9 +3,11 @@
 import os
 import string
 import asyncio
+import functools
 from aiohttp import web
-from aiotg import Bot, Chat, InlineQuery
+from aiotg import Bot, Chat, InlineQuery, CallbackQuery
 
+import msgdb
 from config import *
 from strconv import *
 from queryutil import *
@@ -74,12 +76,23 @@ def inline_request_handler(request: InlineQuery) -> None:
         if str_from_base64:
             add_article("Дешифровка", str_from_base64)
         elif request.query:
+            msg_id = msgdb.insert(request.query)
+            keyboard = InlineKeyboardBuilder()
+            keyboard.add_row().add("Расшифровать", callback_data=msg_id)
+            add_decryptable_article = functools.partial(add_article, reply_markup=keyboard.build())
+
             add_article("Проблемы с раскладкой?", switch_keyboard_layout(request.query))
-            add_article("Говорить, как робот", str_to_bin(request.query))
-            add_article("Типа программист", str_to_hex(request.query))
-            add_article("Шифровка", str_to_base64(request.query))
+            add_decryptable_article("Говорить, как робот", str_to_bin(request.query))
+            add_decryptable_article("Типа программист", str_to_hex(request.query))
+            add_decryptable_article("Шифровка", str_to_base64(request.query))
 
     request.answer(results.build_list())
+
+
+@bot.callback
+def decrypt(_, callback_query: CallbackQuery) -> None:
+    message = msgdb.select(callback_query.data) or "Расшифровка потерялась :("
+    callback_query.answer(text=message)
 
 
 if __name__ == '__main__':
