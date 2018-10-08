@@ -6,6 +6,7 @@ import asyncio
 import functools
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery
+from klocmod import LocalizationsContainer
 
 import msgdb
 from config import *
@@ -17,81 +18,80 @@ from userutil import *
 ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
 
 bot = Bot(api_token=TOKEN)
+localizations = LocalizationsContainer.from_file("app/localizations.ini")
 
 
 @bot.command("/start")
 @bot.command("/help")
 async def start(chat: Chat, _) -> None:
-    await chat.send_text("Привет! Я могу тебе помочь с различными преобразованием текста. Просто введи моё имя в "
-                         "строке ввода сообщения через собачку, а дальше пиши любой текст. Работает в любом чате! "
-                         "Но не злоупотребляй длинными сообщениями, так как я не смогу их обработать!")
-    chat.send_text("Если ты хочешь предложить какое-то новое преобразование, отправь мне текст по следующему шаблону:\n"
-                   "`/suggest Хочу предложить...`", parse_mode="Markdown")
+    lang = localizations.get_lang(chat.message['from']['language_code'])
+    await chat.send_text(lang['help_message'])
+    chat.send_text(lang['suggest_send_suggestion'], parse_mode="Markdown")
 
 
 @bot.command(r"/suggest\s*(.+)")
 async def suggest(chat: Chat, match) -> None:
     user = chat.message['from']
     username = escape_html(get_username_or_fullname(user))
+    lang = localizations.get_lang(user['language_code'])
 
     first_line = match.group(1)
     rest_lines = chat.message['text'].split('\n')[1:]
     suggestion = escape_html(first_line + '\n' + '\n'.join(rest_lines))
 
-    suggestion_report = "Пользователь {} <b>предлагает</b>:\n\n{}".format(username, suggestion)
+    suggestion_report = lang['suggestion_report_template'].format(username, suggestion)
     chat_with_admin = Chat(bot, OWNER_ID)
     chat_with_admin.send_text(suggestion_report, parse_mode="HTML")
 
-    await chat.send_text("Предложение отправлено разработчику!")
-    chat.send_text("Чтобы иметь возможность следить за судьбой предложения, можно дополнительно "
-                   "[создать тикет на GitHub](%s)." % ISSUES_LINK,
-                   parse_mode="Markdown")
+    await chat.send_text(lang['suggestion_sent'])
+    chat.send_text(lang['suggest_create_issue'].format(ISSUES_LINK), parse_mode="Markdown")
 
 
 @bot.command("/suggest")
 def empty_suggest(chat: Chat, _) -> None:
-    chat.send_text("Напиши своё предложение сразу после команды:\n`/suggest Хочу предложить...`\n\n"
-                   "Либо можешь [создать новый тикет на GitHub](%s)." % ISSUES_LINK,
-                   parse_mode="Markdown")
+    how_suggest_feature = localizations.get_phrase(chat.message['from']['language_code'], 'how_suggest_feature')
+    chat.send_text(how_suggest_feature.format(ISSUES_LINK), parse_mode="Markdown")
 
 
 @bot.inline
 def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
+    lang = localizations.get_lang(request.sender['language_code'])
 
     if all(char in ('0', '1', ' ') for char in request.query):
         str_from_bin = bin_to_str(request.query)
         if str_from_bin:
-            add_article("Притвориться человеком", str_from_bin)
+            add_article(lang['pretend_being_human'], str_from_bin)
     elif all(char in string.hexdigits + ' ' for char in request.query):
         str_from_hex = hex_to_str(request.query)
         if str_from_hex:
-            add_article("Просто текст", str_from_hex)
+            add_article(lang['plain_text'], str_from_hex)
     else:
         str_from_base64 = None
         if all(char in string.ascii_letters + string.digits + '+/=' for char in request.query):
             str_from_base64 = base64_to_str(request.query)
 
         if str_from_base64:
-            add_article("Дешифровка", str_from_base64)
+            add_article(lang['unencrypted_text'], str_from_base64)
         elif request.query:
             msg_id = msgdb.insert(request.query)
             keyboard = InlineKeyboardBuilder()
-            keyboard.add_row().add("Расшифровать", callback_data=msg_id)
+            keyboard.add_row().add(lang['decrypt'], callback_data=msg_id)
             add_decryptable_article = functools.partial(add_article, reply_markup=keyboard.build())
 
-            add_article("Проблемы с раскладкой?", switch_keyboard_layout(request.query))
-            add_decryptable_article("Говорить, как робот", str_to_bin(request.query))
-            add_decryptable_article("Типа программист", str_to_hex(request.query))
-            add_decryptable_article("Шифровка", str_to_base64(request.query))
+            add_article(lang['wrong_keyboard_layout'], switch_keyboard_layout(request.query))
+            add_decryptable_article(lang['speak_like_robot'], str_to_bin(request.query))
+            add_decryptable_article(lang['be_like_programmer'], str_to_hex(request.query))
+            add_decryptable_article(lang['encrypted_text'], str_to_base64(request.query))
 
     request.answer(results.build_list())
 
 
 @bot.callback
 def decrypt(_, callback_query: CallbackQuery) -> None:
-    message = msgdb.select(callback_query.data) or "Расшифровка потерялась :("
+    not_found_msg = localizations.get_phrase(callback_query.src['from']['language_code'], 'missing_original_text')
+    message = msgdb.select(callback_query.data) or not_found_msg
     callback_query.answer(text=message)
 
 
