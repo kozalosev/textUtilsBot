@@ -1,0 +1,16 @@
+[Unit]
+Description=Telegram bot @textUtilsBot
+
+[Service]
+ExecStart=/home/username/textUtilsBot/start.sh
+WorkingDirectory=/home/username/textUtilsBot/
+User=www-data
+Restart=on-failure
+# Direct output to files is supported by systemd 236 and newer.
+# Older versions will ignore the following options and write logs into the journal
+# which is accessible via journalctl.
+StandardError=file:/home/username/logs/textUtilsBot.err.log
+StandardOutput=file:/home/username/logs/textUtilsBot.out.log
+
+[Install]
+WantedBy=multi-user.target

@@ -39,8 +39,8 @@ the *config.py* file from the [`examples/`](examples) directory into [`app/`](ap
 4. Edit [app/config.py](app/config.py) according to your environment.
 5. Run `./start.sh` using one of the following ways:
     - directly (`nohup ./start.sh &>/dev/null &`);
-    - configure [supervisord](http://supervisord.org/) to do it for you (see
-        [the exemplary configuration file](examples/supervisord-textUtilsBot.conf));
+    - configure [supervisord](http://supervisord.org/) or **systemd** to do it for you (see
+        [exemplary configuration files](examples));
     - configure any other service manager on your choice (but you have to write configuration by yourself).
 
 I encourage you to use the application as a local server that receives requests from Telegram from an external web
