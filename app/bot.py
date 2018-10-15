@@ -5,7 +5,8 @@ import string
 import asyncio
 import functools
 from aiohttp import web
-from aiotg import Bot, Chat, InlineQuery, CallbackQuery
+from aiotg import Chat, InlineQuery, CallbackQuery
+from fixed_aiotg import Bot
 from klocmod import LocalizationsContainer
 
 import msgdb
@@ -17,7 +18,7 @@ from userutil import *
 
 ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
 
-bot = Bot(api_token=TOKEN)
+bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
 
 
