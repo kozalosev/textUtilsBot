@@ -17,6 +17,7 @@ from userutil import *
 
 
 ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
+DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
@@ -93,7 +94,7 @@ def inline_request_handler(request: InlineQuery) -> None:
 def decrypt(_, callback_query: CallbackQuery) -> None:
     not_found_msg = localizations.get_phrase(callback_query.src['from']['language_code'], 'missing_original_text')
     message = msgdb.select(callback_query.data) or not_found_msg
-    callback_query.answer(text=message)
+    callback_query.answer(text=message, cache_time=DECRYPT_BUTTON_CACHE_TIME)
 
 
 if __name__ == '__main__':
