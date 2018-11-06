@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 import os
-import string
 import asyncio
-import functools
 from aiohttp import web
 from aiotg import Chat, InlineQuery, CallbackQuery
 from fixed_aiotg import Bot
 from klocmod import LocalizationsContainer
 
 import msgdb
+import strconv
+from strconv.util import escape_html
+from txtproc import TextProcessorsLoader, TextProcessor
 from config import *
-from strconv import *
 from queryutil import *
 from userutil import *
 
@@ -21,6 +21,7 @@ DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
+text_processors = TextProcessorsLoader(strconv)
 
 
 @bot.command("/start")
@@ -61,31 +62,27 @@ def inline_request_handler(request: InlineQuery) -> None:
     add_article = get_articles_generator_for(results)
     lang = localizations.get_lang(request.sender['language_code'])
 
-    if all(char in ('0', '1', ' ') for char in request.query):
-        str_from_bin = bin_to_str(request.query)
-        if str_from_bin:
-            add_article(lang['pretend_being_human'], str_from_bin)
-    elif all(char in string.hexdigits + ' ' for char in request.query):
-        str_from_hex = hex_to_str(request.query)
-        if str_from_hex:
-            add_article(lang['plain_text'], str_from_hex)
+    def transform_query(transformer: TextProcessor, **kwargs):
+        processed_str = transformer.process(request.query)
+        localized_str_key = "hint_" + transformer.name
+        add_article(lang[localized_str_key], processed_str, **kwargs)
+
+    exclusive_processor = text_processors.match_exclusive_processor(request.query)
+    if exclusive_processor:
+        transform_query(exclusive_processor)
     else:
-        str_from_base64 = None
-        if all(char in string.ascii_letters + string.digits + '+/=' for char in request.query):
-            str_from_base64 = base64_to_str(request.query)
+        processors = text_processors.match_simple_processors(request.query)
+        reversible_processors = [x for x in processors if x.is_reversible]
+        non_reversible_processors = [x for x in processors if not x.is_reversible]
 
-        if str_from_base64:
-            add_article(lang['unencrypted_text'], str_from_base64)
-        elif request.query:
-            msg_id = msgdb.insert(request.query)
-            keyboard = InlineKeyboardBuilder()
-            keyboard.add_row().add(lang['decrypt'], callback_data=msg_id)
-            add_decryptable_article = functools.partial(add_article, reply_markup=keyboard.build())
+        for processor in non_reversible_processors:
+            transform_query(processor)
 
-            add_article(lang['wrong_keyboard_layout'], switch_keyboard_layout(request.query))
-            add_decryptable_article(lang['speak_like_robot'], str_to_bin(request.query))
-            add_decryptable_article(lang['be_like_programmer'], str_to_hex(request.query))
-            add_decryptable_article(lang['encrypted_text'], str_to_base64(request.query))
+        msg_id = msgdb.insert(request.query)
+        keyboard = InlineKeyboardBuilder()
+        keyboard.add_row().add(lang['decrypt'], callback_data=msg_id)
+        for processor in reversible_processors:
+            transform_query(processor, reply_markup=keyboard.build())
 
     request.answer(results.build_list())
 

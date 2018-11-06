@@ -1,6 +1,6 @@
-from app.strconv import *
-# noinspection PyProtectedMember
-from app.strconv import split_every_n_characters
+from app.strconv.util import *
+from app.strconv.util.binhex64 import *
+from app.strconv.langlayout import LanguageLayoutSwitcher
 
 
 def test_escape_html():
@@ -82,8 +82,10 @@ class TestLayoutSwitcher:
     en = "J,kf;fkcz c hfcrkflrjq b ,erdjq @`@"
     ru = "Облажался с раскладкой и буквой \"ё\""
 
+    switcher = LanguageLayoutSwitcher()
+
     def test_en_ru(self):
-        assert switch_keyboard_layout(self.en) == self.ru
+        assert self.switcher.process(self.en) == self.ru
 
     def test_ru_en(self):
-        assert switch_keyboard_layout(self.ru) == self.en
+        assert self.switcher.process(self.ru) == self.en
