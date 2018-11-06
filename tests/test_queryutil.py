@@ -21,13 +21,15 @@ def test_add_article_to():
     add_article = get_articles_generator_for(a, max_description=10)
     add_article("foo", "test 1")
     add_article("bar", "test long string")
+    add_article("baz", "<b>test 3</b>", description="test 3", parse_mode="HTML")
     e = [{
         'type': 'article',
         'id': '0',
         'title': 'foo',
         'description': 'test 1',
         'input_message_content': {
-            'message_text': 'test 1'
+            'message_text': 'test 1',
+            'parse_mode': ""
         }
     }, {
         'type': 'article',
@@ -35,7 +37,17 @@ def test_add_article_to():
         'title': 'bar',
         'description': 'test long…',
         'input_message_content': {
-            'message_text': 'test long string'
+            'message_text': 'test long string',
+            'parse_mode': ""
+        }
+    }, {
+        'type': 'article',
+        'id': '2',
+        'title': 'baz',
+        'description': 'test 3',
+        'input_message_content': {
+            'message_text': '<b>test 3</b>',
+            'parse_mode': "HTML"
         }
     }]
     assert a.build_list() == e

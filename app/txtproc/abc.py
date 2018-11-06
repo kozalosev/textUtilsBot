@@ -26,6 +26,17 @@ class TextProcessor(ABC):
     The reversibility means, obviously, that the transformed string may be
     transformed back and this reversed transformation has sense. Mostly useful
     for encoders.
+
+    Processors are allowed to return a string containing HTML tags. In this
+    case, set the 'use_html' field to True. Note, however, that processors
+    must escape HTML entities in the input query by themselves! Use the
+    'strconv.util.escape_html' function for that. The parse mode is deliberately
+    restricted to HTML only. Telegram flavored Markdown is much harder to
+    escape properly.
+
+    If you use HTML, it's likely you'll want to override the 'get_description'
+    method as well. By default, description the message equals to its text,
+    but Telegram renders all HTML tags inside it as plain text.
     """
 
     # Marker used instead of 'issubclass' to search for descendants of this class.
@@ -34,6 +45,8 @@ class TextProcessor(ABC):
 
     is_exclusive = False
     is_reversible = False
+
+    use_html = False
 
     @staticmethod
     @abstractmethod
@@ -45,6 +58,13 @@ class TextProcessor(ABC):
     def process(self, query: str) -> str:
         """Transform the query and return the result."""
         pass
+
+    def get_description(self, query: str) -> str:
+        """
+        By default, description of the message equals to the processed text itself.
+        This method allows subclasses to override this behavior.
+        """
+        return self.process(query)
 
     @classproperty
     @classmethod

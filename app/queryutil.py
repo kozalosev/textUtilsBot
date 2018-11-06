@@ -34,17 +34,19 @@ def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_descripti
     :return: a function `(title: str, text: str, **kwargs) -> None` which you should use to add new articles to the
         storage
     """
-    def add_article(title: str, text: str, **kwargs) -> None:
-        if len(text) > max_description:
-            description = text[:max_description-1].rstrip() + '…'
-        else:
-            description = text
+    def add_article(title: str, text: str, description: str = None, parse_mode: str = "", **kwargs) -> None:
+        if not description:
+            if len(text) > max_description:
+                description = text[:max_description-1].rstrip() + '…'
+            else:
+                description = text
         storage.add(
             type='article',
             title=title,
             description=description,
             input_message_content={
-                'message_text': text
+                'message_text': text,
+                'parse_mode': parse_mode
             },
             **kwargs
         )

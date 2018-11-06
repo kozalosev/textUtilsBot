@@ -64,8 +64,10 @@ def inline_request_handler(request: InlineQuery) -> None:
 
     def transform_query(transformer: TextProcessor, **kwargs):
         processed_str = transformer.process(request.query)
+        description = transformer.get_description(request.query)
+        parse_mode = "HTML" if transformer.use_html else ""
         localized_str_key = "hint_" + transformer.name
-        add_article(lang[localized_str_key], processed_str, **kwargs)
+        add_article(lang[localized_str_key], processed_str, description, parse_mode, **kwargs)
 
     exclusive_processor = text_processors.match_exclusive_processor(request.query)
     if exclusive_processor:
