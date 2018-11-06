@@ -19,9 +19,9 @@ class TextProcessor(ABC):
     transformed string when the 'process' method will be invoked.
 
     Another notable thought that text processors can be exclusive and/or
-    reversible. The exclusivity means here that there is the only one processor
-    which should handle the query. If such processor is found, the others will
-    be discarded. It's mostly useful for decoders.
+    reversible. The exclusivity means here that there is only a subset of
+    processors which should handle the query. If such processors are found,
+    the others will be discarded. It's mostly useful for decoders.
 
     The reversibility means, obviously, that the transformed string may be
     transformed back and this reversed transformation has sense. Mostly useful

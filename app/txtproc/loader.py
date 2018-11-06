@@ -57,15 +57,12 @@ class TextProcessorsLoader:
         self.exclusive_processors = {x for x in impls if x.is_exclusive}
         self.simple_processors = {x for x in impls if x not in self.exclusive_processors}
 
-    def match_exclusive_processor(self, query: str) -> Optional[TextProcessor]:
+    def match_exclusive_processors(self, query: str) -> Iterable[TextProcessor]:
         """
-        Iterate over the list of exclusive processors. Returns the instance of
-        the first encountered processor which can process the query. Or None,
-        if no one can handle it.
+        Iterate over the list of exclusive processors. Returns the list of
+        instances of all processors which can process the query.
         """
-        for processor in self.exclusive_processors:
-            if processor.can_process(query):
-                return processor()
+        return [x() for x in self.exclusive_processors if x.can_process(query)]
 
     def match_simple_processors(self, query: str) -> Iterable[TextProcessor]:
         """

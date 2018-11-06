@@ -69,9 +69,10 @@ def inline_request_handler(request: InlineQuery) -> None:
         localized_str_key = "hint_" + transformer.name
         add_article(lang[localized_str_key], processed_str, description, parse_mode, **kwargs)
 
-    exclusive_processor = text_processors.match_exclusive_processor(request.query)
-    if exclusive_processor:
-        transform_query(exclusive_processor)
+    exclusive_processors = text_processors.match_exclusive_processors(request.query)
+    if exclusive_processors:
+        for processor in exclusive_processors:
+            transform_query(processor)
     else:
         processors = text_processors.match_simple_processors(request.query)
         reversible_processors = [x for x in processors if x.is_reversible]

@@ -57,7 +57,8 @@ def test_matching_exclusive_processors(loader, query, expected_processor):
     This can help to ensure that your implementation of the 'can_process' method
     is correct and all processors will match as expected.
     """
-    assert type(loader.match_exclusive_processor(query)) is expected_processor
+    processor_classes = {type(x) for x in loader.match_exclusive_processors(query)}
+    assert expected_processor in processor_classes
 
 
 @pytest.mark.parametrize("processor,expected_name", [
