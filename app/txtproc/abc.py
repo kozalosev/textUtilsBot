@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from .util import classproperty
 
 
-__all__ = ['TextProcessor', 'Exclusive', 'Reversible', 'Universal', 'Encoder', 'Decoder']
+__all__ = ['TextProcessor', 'Exclusive', 'Reversible', 'Universal', 'HTML', 'Encoder', 'Decoder']
 
 
 class TextProcessor(ABC):
@@ -48,9 +48,9 @@ class TextProcessor(ABC):
 
     use_html = False
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def can_process(query: str) -> bool:
+    def can_process(cls, query: str) -> bool:
         """Return True if the processor can handle the query."""
         pass
 
@@ -100,8 +100,15 @@ class Universal:
         return True
 
 
-class Encoder(Universal, Reversible, TextProcessor, ABC):
-    """Encoders are reversible text processors that can handle any query."""
+class HTML:
+    """Mix-in class that enables the use of HTML tags."""
+    use_html = True
+
+
+# Shortcuts for common cases
+
+class Encoder(Reversible, TextProcessor, ABC):
+    """Encoders are reversible text processors."""
     pass
 
 

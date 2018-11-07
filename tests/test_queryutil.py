@@ -1,4 +1,4 @@
-from app.queryutil import *
+from queryutil import *
 
 
 def test_answers():

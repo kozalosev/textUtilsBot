@@ -1,4 +1,4 @@
-from app.userutil import *
+from userutil import *
 
 
 class TestGetUsernameOrFullname:

@@ -9,32 +9,32 @@ checking of ability to handle the query and actual processing.
 
 import string
 
-from txtproc.abc import Encoder, Decoder
+from txtproc.abc import Universal, Encoder, Decoder
 from .util.binhex64 import *
 
 
-class BinaryEncoder(Encoder):
+class BinaryEncoder(Universal, Encoder):
     def process(self, query: str) -> str:
         return str_to_bin(query)
 
 
 class BinaryDecoder(Decoder):
-    @staticmethod
-    def can_process(query: str) -> bool:
+    @classmethod
+    def can_process(cls, query: str) -> bool:
         return all(char in ('0', '1', ' ') for char in query) and bin_to_str(query)
 
     def process(self, query: str) -> str:
         return bin_to_str(query)
 
 
-class HexadecimalEncoder(Encoder):
+class HexadecimalEncoder(Universal, Encoder):
     def process(self, query: str) -> str:
         return str_to_hex(query)
 
 
 class HexadecimalDecoder(Decoder):
-    @staticmethod
-    def can_process(query: str) -> bool:
+    @classmethod
+    def can_process(cls, query: str) -> bool:
         # Since this processor is able to handle the same queries the BinaryDecoder can, we need to ensure that
         # we won't swallow binary strings here.
         if BinaryDecoder.can_process(query):
@@ -45,14 +45,14 @@ class HexadecimalDecoder(Decoder):
         return hex_to_str(query)
 
 
-class Base64Encoder(Encoder):
+class Base64Encoder(Universal, Encoder):
     def process(self, query: str) -> str:
         return str_to_base64(query)
 
 
 class Base64Decoder(Decoder):
-    @staticmethod
-    def can_process(query: str) -> bool:
+    @classmethod
+    def can_process(cls, query: str) -> bool:
         return all(char in string.ascii_letters + string.digits + '+/=' for char in query) and base64_to_str(query)
 
     def process(self, query: str) -> str:

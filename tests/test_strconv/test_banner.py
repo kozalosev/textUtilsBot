@@ -1,4 +1,4 @@
-from app.strconv.banner import spaced_text, BannerMaker
+from strconv.banner import spaced_text, BannerMaker
 
 
 def test_spaced_text():
