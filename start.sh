@@ -1,5 +1,5 @@
 #!/bin/sh
 
-. bin/activate
+. venv/bin/activate
 export PYTHONPATH=app
 exec app/bot.py
