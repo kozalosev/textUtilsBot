@@ -5,6 +5,10 @@ from txtproc.abc import TextProcessor
 class TypographerConverter(TextProcessor):
     replacements = [
         (r"\"(.*)\"", r"«\1»"),
+        ("!=", "≠"),
+        ("~=", "≈"),
+        ("<=", "≤"),
+        (">=", "≥"),
         (r"\([cс]\)", "©"),
         (r"\(r\)", "®"),
         (r"\([tт][mм]\)", "™"),
