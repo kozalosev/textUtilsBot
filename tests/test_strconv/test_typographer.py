@@ -9,7 +9,8 @@ def converter() -> TypographerConverter:
 
 def test_matcher(converter):
     assert not converter.can_process("hello world")
-    assert converter.can_process('Leonid "SadBot" Kozarin')
+    assert not converter.can_process('Leonid "SadBot" Kozarin')
+    assert converter.can_process('Leonid <<SadBot>> Kozarin')
     assert converter.can_process("C++ != C#")
     assert converter.can_process("Java ~= C#")
     assert converter.can_process("Java <= Kotlin")
@@ -20,7 +21,7 @@ def test_matcher(converter):
 
 
 def test_converter(converter):
-    assert converter.process('Leonid "SadBot" Kozarin') == "Leonid «SadBot» Kozarin"
+    assert converter.process('Leonid <<SadBot>> Kozarin') == "Leonid «SadBot» Kozarin"
     assert converter.process("C++ != C#") == "C++ ≠ C#"
     assert converter.process("Java ~= C#") == "Java ≈ C#"
     assert converter.process("Java <= Kotlin") == "Java ≤ Kotlin"
