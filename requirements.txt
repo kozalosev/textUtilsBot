@@ -1,3 +1,3 @@
-aiotg==0.9.7
+git+git://github.com/szastupov/aiotg@e1e018f483bcaa0b5a573c8ed22305331ab0ba37
 aiohttp==3.0.5
 klocmod==0.1.0

@@ -3,8 +3,7 @@
 import os
 import asyncio
 from aiohttp import web
-from aiotg import Chat, InlineQuery, CallbackQuery
-from fixed_aiotg import Bot
+from aiotg import Bot, Chat, InlineQuery, CallbackQuery
 from klocmod import LocalizationsContainer
 
 import msgdb
