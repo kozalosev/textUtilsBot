@@ -6,6 +6,7 @@ class TypographerConverter(TextProcessor):
     replacements = [
         ("<<", "«"),
         (">>", "»"),
+        ("\.{3}", "…"),
         ("!=", "≠"),
         ("~=", "≈"),
         ("<=", "≤"),
