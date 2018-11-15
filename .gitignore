@@ -3,6 +3,6 @@
 __pycache__/
 venv/
 
-app/config.py
+app/data/config.py
 log.txt
 messages.db

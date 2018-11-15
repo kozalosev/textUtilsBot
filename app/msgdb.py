@@ -4,7 +4,7 @@ import sqlite3
 import logging
 from typing import *
 
-__db = sqlite3.connect('messages.db')
+__db = sqlite3.connect('app/data/messages.db')
 __db.execute("CREATE TABLE IF NOT EXISTS Messages(message TEXT NOT NULL)")
 _logger = logging.getLogger(__name__)
 

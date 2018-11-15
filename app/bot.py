@@ -11,7 +11,7 @@ import msgdb
 import strconv
 from strconv.util import escape_html
 from txtproc import TextProcessorsLoader, TextProcessor
-from config import *
+from data.config import *
 from queryutil import *
 from userutil import *
 

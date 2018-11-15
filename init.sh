@@ -10,12 +10,12 @@ pip install -r requirements.txt
 echo
 
 echo "Creating a configuration file..."
-cp examples/config.py app/
-sudo chgrp www-data app/config.py || echo "Group 'www-data' not found. Change the group of 'app/config' file manually!"
-chmod o-r app/config.py
+cp examples/config.py app/data/
+sudo chgrp www-data app/data/config.py || echo "Group 'www-data' not found. Change the group of the 'app/data/config.py' file manually!"
+chmod o-r app/data/config.py
 echo
 
-echo "Done. Don't forget to replace fake values in 'app/config.py' with your actual ones."
+echo "Done. Don't forget to replace fake values in 'app/data/config.py' with your actual ones."
 echo "Use the '. venv/bin/activate' command to enable the virtual environment. Inside, type 'deactivate' to disable it."
 echo "The 'start.sh' script is a shortcut to enter the virtual environment and run the bot."
 echo

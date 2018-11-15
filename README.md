@@ -29,19 +29,41 @@ To execute the tests:
 How to deploy
 -------------
 
-The project is supposed to be used within a virtual environment. There is a special [initialization script](init.sh),
+As of [v2.0.0](https://github.com/kozalosev/textUtilsBot/releases/tag/v2.0.0), there are two options to run the bot.
+The first one is to use a Docker container. To use this option, you need [Docker](https://docs.docker.com/install/#supported-platforms)
+and [Docker Compose](https://docs.docker.com/compose/install/) to be installed on your system. This approach allows you
+to don't care about the version of the Python interpreter installed on your machine.
+
+The other way is to run the bot within a virtual environment. There is a special [initialization script](init.sh),
 that can help you on Linux. On Windows, you have to manually run *venv*, install all dependencies using *pip* and copy
-the *config.py* file from the [`examples/`](examples) directory into [`app/`](app).
+the *config.py* file from the [`examples/`](examples) directory into [`app/data/`](app/data). Note, however, that there
+is only built-in support for Linux based servers for production use. But it's OK to utilize Windows machines for
+development and debugging.
+
+
+### Using Docker
+
+1. Clone the repository.
+2. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
+3. Run the `./start-container.sh` script.
+4. Edit [app/data/config.py](app/data/config.py) according to your environment.
+5. Run `./start-container.sh` again.
+
+
+### Using _venv_
 
 1. Clone the repository.
 2. `./init.sh`
 3. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
-4. Edit [app/config.py](app/config.py) according to your environment.
+4. Edit [app/data/config.py](app/data/config.py) according to your environment.
 5. Run `./start.sh` using one of the following ways:
     - directly (`nohup ./start.sh &>/dev/null &`);
     - configure [supervisord](http://supervisord.org/) or **systemd** to do it for you (see
         [exemplary configuration files](examples));
     - configure any other service manager on your choice (but you have to write configuration by yourself).
+
+
+### Common notes
 
 I encourage you to use the application as a local server that receives requests from Telegram from an external web
 server. In such case, you can configure a TLS certificate for all at once. This is especially handy in the case if
@@ -68,7 +90,7 @@ web.run_app(app, host='0.0.0.0', port=APP_PORT, ssl_context=context)
 How to contribute a new feature
 -------------------------------
 
-As of [v1.1.0](https://github.com/kozalosev/textUtilsBot/releases/tag/1.1.0), it became much easier to add new text
+As of [v1.1.0](https://github.com/kozalosev/textUtilsBot/releases/tag/v1.1.0), it became much easier to add new text
 processors to the bot. If [earlier](https://github.com/kozalosev/textUtilsBot/tree/c25df0e0f246ca9c2143098d4cf7c72535b96591)
 you had to embed calls of new functions into the entangled and confusing
 [inline_request_handler](https://github.com/kozalosev/textUtilsBot/blob/c25df0e0f246ca9c2143098d4cf7c72535b96591/app/bot.py#L64)
