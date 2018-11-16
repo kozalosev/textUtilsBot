@@ -2,7 +2,7 @@
 
 from io import StringIO
 
-from txtproc.abc import Universal, TextProcessor
+from txtproc.abc import Universal, HTML, TextProcessor
 from .util import escape_html
 
 
@@ -18,9 +18,7 @@ def spaced_text(text: str) -> str:
     return new_str.getvalue().rstrip()
 
 
-class BannerMaker(Universal, TextProcessor):
-    use_html = True
-
+class BannerMaker(Universal, HTML, TextProcessor):
     def process(self, query: str) -> str:
         banner = spaced_text(escape_html(query)).upper()
         return "<code>{}</code>".format(banner)
