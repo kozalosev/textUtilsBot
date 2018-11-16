@@ -7,8 +7,6 @@ services:
     hostname: testUtilsBot
     working_dir: /home/textUtilsBot
     restart: always
-    ports:
-    - "8080:8443"    # host:container
     volumes:
     - "./app/data:/home/textUtilsBot/app/data"
     - "/tmp:/tmp"
