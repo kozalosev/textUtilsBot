@@ -2,9 +2,11 @@
 
 import os
 import asyncio
+import logging
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery
 from klocmod import LocalizationsContainer
+from typing import *
 
 import msgdb
 import strconv
@@ -13,14 +15,21 @@ from txtproc import TextProcessorsLoader, TextProcessor
 from data.config import *
 from queryutil import *
 from userutil import *
+from timeoututil import *
 
 
 ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
+MAX_SUGGESTIONS = 5
+MAX_SUGGESTIONS_TIMEOUT = 720       # in minutes
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
 text_processors = TextProcessorsLoader(strconv)
+logger = logging.getLogger(__name__)
+
+UserId = str
+suggestion_counters = {}    # type: Dict[UserId, SuggestionsCounter]
 
 
 @bot.command("/start")
@@ -36,6 +45,20 @@ async def suggest(chat: Chat, match) -> None:
     user = chat.message['from']
     username = escape_html(get_username_or_fullname(user))
     lang = localizations.get_lang(user['language_code'])
+
+    if user['id'] not in suggestion_counters:
+        suggestion_counters[user['id']] = SuggestionsCounter()
+    counter = suggestion_counters[user['id']]
+    counter.increment()
+    timeout_in_minutes = compute_timeout_in_minutes(counter, MAX_SUGGESTIONS, MAX_SUGGESTIONS_TIMEOUT)
+    logger.debug(counter)
+    logger.debug("User ID: %d, username: %s, timeout: %d minutes", user['id'], username, timeout_in_minutes)
+    if counter.minutes_elapsed >= timeout_in_minutes:
+        counter.reset()
+    counter.update_timestamp()
+    if counter.value > MAX_SUGGESTIONS:
+        chat.send_text(lang['suggestion_timeout'].format(timeout_in_minutes))
+        return
 
     first_line = match.group(1)
     rest_lines = chat.message['text'].split('\n')[1:]
