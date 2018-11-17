@@ -22,4 +22,4 @@ if [ $(stat -c "%U" app/data) != "www-data" ]; then
     sudo chown www-data app/data
 fi
 
-docker-compose up -d
+docker-compose up -d --build
