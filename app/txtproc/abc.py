@@ -95,8 +95,8 @@ class Reversible:
 
 class Universal:
     """Mix-in class that's used for processors that can handle any text."""
-    @staticmethod
-    def can_process(_: str) -> bool:
+    @classmethod
+    def can_process(cls, _: str) -> bool:
         return True
 
 

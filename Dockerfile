@@ -12,6 +12,4 @@ RUN pip install -r requirements.txt
 USER 33
 COPY app ./app
 
-EXPOSE 8443/tcp
-
 CMD ["python", "app/bot.py"]
