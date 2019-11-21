@@ -8,14 +8,11 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
-from strconv.util import escape_html
 from txtproc import TextProcessorsLoader, TextProcessor
 from data.config import *
 from queryutil import *
-from userutil import *
 
 
-ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
@@ -25,34 +22,9 @@ text_processors = TextProcessorsLoader(strconv)
 
 @bot.command("/start")
 @bot.command("/help")
-async def start(chat: Chat, _) -> None:
+def start(chat: Chat, _) -> None:
     lang = localizations.get_lang(chat.message['from']['language_code'])
-    await chat.send_text(lang['help_message'])
-    chat.send_text(lang['suggest_send_suggestion'], parse_mode="Markdown")
-
-
-@bot.command(r"/suggest\s*(.+)")
-async def suggest(chat: Chat, match) -> None:
-    user = chat.message['from']
-    username = escape_html(get_username_or_fullname(user))
-    lang = localizations.get_lang(user['language_code'])
-
-    first_line = match.group(1)
-    rest_lines = chat.message['text'].split('\n')[1:]
-    suggestion = escape_html(first_line + '\n' + '\n'.join(rest_lines))
-
-    suggestion_report = lang['suggestion_report_template'].format(username, suggestion)
-    chat_with_admin = Chat(bot, OWNER_ID)
-    chat_with_admin.send_text(suggestion_report, parse_mode="HTML")
-
-    await chat.send_text(lang['suggestion_sent'])
-    chat.send_text(lang['suggest_create_issue'].format(ISSUES_LINK), parse_mode="Markdown")
-
-
-@bot.command("/suggest")
-def empty_suggest(chat: Chat, _) -> None:
-    how_suggest_feature = localizations.get_phrase(chat.message['from']['language_code'], 'how_suggest_feature')
-    chat.send_text(how_suggest_feature.format(ISSUES_LINK), parse_mode="Markdown")
+    chat.send_text(lang['help_message'])
 
 
 @bot.inline
