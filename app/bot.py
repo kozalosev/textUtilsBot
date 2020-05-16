@@ -22,9 +22,20 @@ text_processors = TextProcessorsLoader(strconv)
 
 @bot.command("/start")
 @bot.command("/help")
-def start(chat: Chat, _) -> None:
+@bot.default
+async def start(chat: Chat, _) -> None:
     lang = localizations.get_lang(chat.message['from']['language_code'])
-    chat.send_text(lang['help_message'])
+    await chat.send_text(lang['help_message'])
+    await chat.send_text(lang['help_message_transformers_list'])
+    processors_except_decoders = [x for x in text_processors.all_processors if not x.name.endswith("decoder")]
+    for processor in processors_except_decoders:
+        processor_name_key, help_message_key = 'hint_' + processor.name, 'help_' + processor.name
+        localized_processor_name, localized_help_message = lang[processor_name_key], lang[help_message_key]
+        # skip empty and undefined help messages
+        if len(localized_help_message.strip()) == 0 or localized_help_message == help_message_key:
+            continue
+        answer = f"*{localized_processor_name}*\n\n{localized_help_message}"
+        await chat.send_text(answer, parse_mode="Markdown")
 
 
 @bot.inline

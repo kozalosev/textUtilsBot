@@ -49,11 +49,13 @@ class TextProcessorsLoader:
     the 'TextProcessor' class from either a module or all modules in some
     package.
     """
+    all_processors = None          # type: Iterable[Type[TextProcessor]]
     exclusive_processors = None    # type: Iterable[Type[TextProcessor]]
     simple_processors = None       # type: Iterable[Type[TextProcessor]]
 
     def __init__(self, module_or_package):
         impls = set(get_implementations(TextProcessor, module_or_package))
+        self.all_processors = set(impls)
         self.exclusive_processors = {x for x in impls if x.is_exclusive}
         self.simple_processors = {x for x in impls if x not in self.exclusive_processors}
 
