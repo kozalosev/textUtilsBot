@@ -16,7 +16,7 @@ send me a pull request.
 Requirements
 ------------
 
-- [Python 3.5+](https://www.python.org)
+- [Python 3.7+](https://www.python.org)
 - [aiotg](https://pypi.python.org/pypi/aiotg)
 - [aiohttp](https://pypi.python.org/pypi/aiohttp)
 
