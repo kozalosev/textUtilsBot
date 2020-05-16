@@ -1,7 +1,7 @@
 FROM python:3.8-alpine
 
 RUN apk update && \
-    apk add git
+    apk add git gcc musl-dev
 
 WORKDIR /home/textUtilsBot
 
