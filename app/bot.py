@@ -27,8 +27,7 @@ async def start(chat: Chat, _) -> None:
     lang = localizations.get_lang(chat.message['from']['language_code'])
     await chat.send_text(lang['help_message'])
     await chat.send_text(lang['help_message_transformers_list'])
-    processors_except_decoders = [x for x in text_processors.all_processors if not x.name.endswith("decoder")]
-    for processor in processors_except_decoders:
+    for processor in text_processors.all_processors:
         processor_name_key, help_message_key = 'hint_' + processor.name, 'help_' + processor.name
         localized_processor_name, localized_help_message = lang[processor_name_key], lang[help_message_key]
         # skip empty and undefined help messages
