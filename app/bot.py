@@ -2,80 +2,42 @@
 
 import os
 import asyncio
-import logging
 from aiohttp import web
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery
 from klocmod import LocalizationsContainer
-from typing import *
 
 import msgdb
 import strconv
-from strconv.util import escape_html
 from txtproc import TextProcessorsLoader, TextProcessor
+from txtprocutil import resolve_text_processor_name
 from data.config import *
 from queryutil import *
-from userutil import *
-from timeoututil import *
 
 
-ISSUES_LINK = "https://{}/issues/".format(REPO_URL)
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
-MAX_SUGGESTIONS = 5
-MAX_SUGGESTIONS_TIMEOUT = 720       # in minutes
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
 text_processors = TextProcessorsLoader(strconv)
-logger = logging.getLogger(__name__)
-
-UserId = str
-suggestion_counters = {}    # type: Dict[UserId, SuggestionsCounter]
 
 
 @bot.command("/start")
 @bot.command("/help")
+@bot.default
 async def start(chat: Chat, _) -> None:
     lang = localizations.get_lang(chat.message['from']['language_code'])
     await chat.send_text(lang['help_message'])
-    chat.send_text(lang['suggest_send_suggestion'], parse_mode="Markdown")
-
-
-@bot.command(r"/suggest\s*(.+)")
-async def suggest(chat: Chat, match) -> None:
-    user = chat.message['from']
-    username = escape_html(get_username_or_fullname(user))
-    lang = localizations.get_lang(user['language_code'])
-
-    if user['id'] not in suggestion_counters:
-        suggestion_counters[user['id']] = SuggestionsCounter()
-    counter = suggestion_counters[user['id']]
-    counter.increment()
-    timeout_in_minutes = compute_timeout_in_minutes(counter, MAX_SUGGESTIONS, MAX_SUGGESTIONS_TIMEOUT)
-    logger.debug(counter)
-    logger.debug("User ID: %d, username: %s, timeout: %d minutes", user['id'], username, timeout_in_minutes)
-    if counter.minutes_elapsed >= timeout_in_minutes:
-        counter.reset()
-    counter.update_timestamp()
-    if counter.value > MAX_SUGGESTIONS:
-        chat.send_text(lang['suggestion_timeout'].format(timeout_in_minutes))
-        return
-
-    first_line = match.group(1)
-    rest_lines = chat.message['text'].split('\n')[1:]
-    suggestion = escape_html(first_line + '\n' + '\n'.join(rest_lines))
-
-    suggestion_report = lang['suggestion_report_template'].format(username, suggestion)
-    chat_with_admin = Chat(bot, OWNER_ID)
-    chat_with_admin.send_text(suggestion_report, parse_mode="HTML")
-
-    await chat.send_text(lang['suggestion_sent'])
-    chat.send_text(lang['suggest_create_issue'].format(ISSUES_LINK), parse_mode="Markdown")
-
-
-@bot.command("/suggest")
-def empty_suggest(chat: Chat, _) -> None:
-    how_suggest_feature = localizations.get_phrase(chat.message['from']['language_code'], 'how_suggest_feature')
-    chat.send_text(how_suggest_feature.format(ISSUES_LINK), parse_mode="Markdown")
+    await chat.send_text(lang['help_message_transformers_list'])
+    for processor in text_processors.all_processors:
+        help_message_key = 'help_' + processor.snake_case_name
+        localized_help_message = lang[help_message_key]
+        # skip empty and undefined help messages
+        if len(localized_help_message.strip()) == 0 or localized_help_message == help_message_key:
+            continue
+        localized_processor_name = resolve_text_processor_name(processor, lang)
+        answer = f"*{localized_processor_name}*\n\n{localized_help_message}"
+        await chat.send_text(answer, parse_mode="Markdown")
+    chat.send_text(lang['help_send_suggestion'], parse_mode="Markdown")
 
 
 @bot.inline
@@ -88,8 +50,8 @@ def inline_request_handler(request: InlineQuery) -> None:
         processed_str = transformer.process(request.query)
         description = transformer.get_description(request.query)
         parse_mode = "HTML" if transformer.use_html else ""
-        localized_str_key = "hint_" + transformer.name
-        add_article(lang[localized_str_key], processed_str, description, parse_mode, **kwargs)
+        localized_transformer_name = resolve_text_processor_name(transformer, lang)
+        add_article(localized_transformer_name, processed_str, description, parse_mode, **kwargs)
 
     exclusive_processors = text_processors.match_exclusive_processors(request.query)
     if exclusive_processors:

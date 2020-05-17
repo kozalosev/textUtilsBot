@@ -6,7 +6,11 @@ from abc import ABC, abstractmethod
 from .util import classproperty
 
 
-__all__ = ['TextProcessor', 'Exclusive', 'Reversible', 'Universal', 'HTML', 'Encoder', 'Decoder']
+__all__ = [
+    'TextProcessor', 'PrefixedTextProcessor',
+    'Exclusive', 'Reversible', 'Universal', 'HTML',
+    'Encoder', 'Decoder'
+]
 
 
 class TextProcessor(ABC):
@@ -69,6 +73,12 @@ class TextProcessor(ABC):
     @classproperty
     @classmethod
     def name(cls) -> str:
+        """Return the name of the class."""
+        return cls.__name__
+
+    @classproperty
+    @classmethod
+    def snake_case_name(cls) -> str:
         """
         Return the name of the class in snake_case.
 
@@ -81,6 +91,40 @@ class TextProcessor(ABC):
             return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
         return to_snake_case(cls.__name__)
+
+
+class PrefixedTextProcessor(TextProcessor, ABC):
+    """
+    Base class for text processors that's not used by default, only when text
+    starts with some prefix, like this: "{prefix}: {text}".
+
+    Instead of defining methods 'can_process' and 'process' you must define
+    methods 'get_prefix', that returns (obviously) the prefix, and 'transform',
+    that takes the text without prefix.
+    """
+
+    @classmethod
+    @abstractmethod
+    def get_prefix(cls) -> str:
+        """A prefix without trailing colon."""
+        pass
+
+    @abstractmethod
+    def transform(self, text: str) -> str:
+        """
+        This method has the same meaning as the 'process' method for usual text
+        processors, but it takes the text with prefix cut off.
+        """
+        pass
+
+    @classmethod
+    def can_process(cls, query: str) -> bool:
+        """Feel free to override this method if you have a more complex condition."""
+        return query.startswith(cls.get_prefix() + ':')
+
+    def process(self, query: str) -> str:
+        query_without_prefix = query[len(self.get_prefix())+1:].lstrip()
+        return self.transform(query_without_prefix)
 
 
 class Exclusive:

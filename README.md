@@ -16,7 +16,7 @@ send me a pull request.
 Requirements
 ------------
 
-- [Python 3.5+](https://www.python.org)
+- [Python 3.7+](https://www.python.org)
 - [aiotg](https://pypi.python.org/pypi/aiotg)
 - [aiohttp](https://pypi.python.org/pypi/aiohttp)
 
@@ -24,6 +24,19 @@ To execute the tests:
 
 - [pytest](https://pypi.python.org/pypi/pytest)
 - [coverage](https://pypi.python.org/pypi/coverage)
+
+
+How to run the bot in debug mode from PyCharm
+---------------------------------------------
+
+To run the bot in debug mode from PyCharm, add a new Python configuration:
+- Script path: `app/bot.py`
+- Working directory: absolute path to the repo directory
+
+Also, you must copy the `examples/config.py` file into the `app/data` directory. After that, set your TOKEN. That's all!
+Click the run button!
+
+> Don't forget to enable VPN if Telegram is banned in your country!
 
 
 How to deploy
@@ -242,6 +255,20 @@ hint_char_decoder = Get the string back
 hint_baka_detector = Бака?
 hint_char_encoder = Коды символов
 hint_char_decoder = Вернуть строку обратно
+```
+
+If you want your processors to be described in the help, don't forget to add the following lines:
+
+```ini
+# Under [DEFAULT] section
+help_baka_detector = You're a baka if you watch anime!
+help_char_encoder = Converts strings to sequences of their numerical codes.
+
+...
+
+# Under [ru] section
+help_baka_detector = Если ты смотришь аниме, то ты бака!
+help_char_encoder = Превращает строки в последовательности их числовых кодов.
 ```
 
 Much better! Actually, there is one more thing we need to do. Write tests for our code!
