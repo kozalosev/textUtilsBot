@@ -9,6 +9,7 @@ from klocmod import LocalizationsContainer
 import msgdb
 import strconv
 from txtproc import TextProcessorsLoader, TextProcessor
+from txtprocutil import resolve_text_processor_name
 from data.config import *
 from queryutil import *
 
@@ -28,11 +29,12 @@ async def start(chat: Chat, _) -> None:
     await chat.send_text(lang['help_message'])
     await chat.send_text(lang['help_message_transformers_list'])
     for processor in text_processors.all_processors:
-        processor_name_key, help_message_key = 'hint_' + processor.name, 'help_' + processor.name
-        localized_processor_name, localized_help_message = lang[processor_name_key], lang[help_message_key]
+        help_message_key = 'help_' + processor.snake_case_name
+        localized_help_message = lang[help_message_key]
         # skip empty and undefined help messages
         if len(localized_help_message.strip()) == 0 or localized_help_message == help_message_key:
             continue
+        localized_processor_name = resolve_text_processor_name(processor, lang)
         answer = f"*{localized_processor_name}*\n\n{localized_help_message}"
         await chat.send_text(answer, parse_mode="Markdown")
 
@@ -47,8 +49,8 @@ def inline_request_handler(request: InlineQuery) -> None:
         processed_str = transformer.process(request.query)
         description = transformer.get_description(request.query)
         parse_mode = "HTML" if transformer.use_html else ""
-        localized_str_key = "hint_" + transformer.name
-        add_article(lang[localized_str_key], processed_str, description, parse_mode, **kwargs)
+        localized_transformer_name = resolve_text_processor_name(transformer, lang)
+        add_article(localized_transformer_name, processed_str, description, parse_mode, **kwargs)
 
     exclusive_processors = text_processors.match_exclusive_processors(request.query)
     if exclusive_processors:

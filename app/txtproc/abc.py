@@ -73,6 +73,12 @@ class TextProcessor(ABC):
     @classproperty
     @classmethod
     def name(cls) -> str:
+        """Return the name of the class."""
+        return cls.__name__
+
+    @classproperty
+    @classmethod
+    def snake_case_name(cls) -> str:
         """
         Return the name of the class in snake_case.
 
