@@ -26,6 +26,19 @@ To execute the tests:
 - [coverage](https://pypi.python.org/pypi/coverage)
 
 
+How to run the bot in debug mode from PyCharm
+---------------------------------------------
+
+To run the bot in debug mode from PyCharm, add a new Python configuration:
+- Script path: `app/bot.py`
+- Working directory: absolute path to the repo directory
+
+Also, you must copy the `examples/config.py` file into the `app/data` directory. After that, set your TOKEN. That's all!
+Click the run button!
+
+> Don't forget to enable VPN if Telegram is banned in your country!
+
+
 How to deploy
 -------------
 
