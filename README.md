@@ -257,6 +257,20 @@ hint_char_encoder = Коды символов
 hint_char_decoder = Вернуть строку обратно
 ```
 
+If you want your processors to be described in the help, don't forget to add the following lines:
+
+```ini
+# Under [DEFAULT] section
+help_baka_detector = You're a baka if you watch anime!
+help_char_encoder = Converts strings to sequences of their numerical codes.
+
+...
+
+# Under [ru] section
+help_baka_detector = Если ты смотришь аниме, то ты бака!
+help_char_encoder = Превращает строки в последовательности их числовых кодов.
+```
+
 Much better! Actually, there is one more thing we need to do. Write tests for our code!
 
 
