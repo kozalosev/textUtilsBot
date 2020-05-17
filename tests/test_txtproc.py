@@ -62,9 +62,18 @@ def test_matching_exclusive_processors(loader, query, expected_processor):
 
 
 @pytest.mark.parametrize("processor,expected_name", [
+    (binhex64.BinaryEncoder, "BinaryEncoder"),
+    (binhex64.HexadecimalDecoder, "HexadecimalDecoder"),
+    (langlayout.LanguageLayoutSwitcher, "LanguageLayoutSwitcher"),
+])
+def test_name_property(processor, expected_name):
+    assert processor.name == processor().name == expected_name
+
+
+@pytest.mark.parametrize("processor,expected_name", [
     (binhex64.BinaryEncoder, "binary_encoder"),
     (binhex64.HexadecimalDecoder, "hexadecimal_decoder"),
     (langlayout.LanguageLayoutSwitcher, "language_layout_switcher"),
 ])
-def test_name_property(processor, expected_name):
-    assert processor.name == processor().name == expected_name
+def test_snake_case_name_property(processor, expected_name):
+    assert processor.snake_case_name == processor().snake_case_name == expected_name
