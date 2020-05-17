@@ -37,6 +37,7 @@ async def start(chat: Chat, _) -> None:
         localized_processor_name = resolve_text_processor_name(processor, lang)
         answer = f"*{localized_processor_name}*\n\n{localized_help_message}"
         await chat.send_text(answer, parse_mode="Markdown")
+    chat.send_text(lang['help_send_suggestion'], parse_mode="Markdown")
 
 
 @bot.inline
