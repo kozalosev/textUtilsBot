@@ -31,3 +31,17 @@ class URLDecoder(URLPrefixedTextProcessor):
 
     def transform(self, text: str) -> str:
         return unquote(text)
+
+
+class PunycodeEncoder(URLPrefixedTextProcessor):
+    def transform(self, text: str) -> str:
+        return text.encode('idna').decode('utf-8')
+
+
+class PunycodeDecoder(URLPrefixedTextProcessor):
+    @classmethod
+    def can_process(cls, query: str) -> bool:
+        return super().can_process(query) and "xn--" in query
+
+    def transform(self, text: str) -> str:
+        return text.encode('utf-8').decode('idna')
