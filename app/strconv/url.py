@@ -41,7 +41,7 @@ class URLDecoder(URLPrefixedTextProcessor):
 class PunycodeEncoder(URLPrefixedTextProcessor):
     @classmethod
     def text_filter(cls, text: str) -> bool:
-        return "xn--" not in text
+        return not text.startswith("xn--")
 
     def transform(self, text: str) -> str:
         return text.encode('idna').decode('utf-8')
@@ -50,7 +50,17 @@ class PunycodeEncoder(URLPrefixedTextProcessor):
 class PunycodeDecoder(URLPrefixedTextProcessor):
     @classmethod
     def text_filter(cls, text: str) -> bool:
-        return "xn--" in text
+        if not text.startswith("xn--"):
+            return False
+        try:
+            cls._decode(text)
+        except UnicodeDecodeError:
+            return False
+        return True
 
     def transform(self, text: str) -> str:
-        return text.encode('utf-8').decode('idna')
+        return self._decode(text)
+
+    @classmethod
+    def _decode(cls, s: str) -> str:
+        return s.encode('utf-8').decode('idna')

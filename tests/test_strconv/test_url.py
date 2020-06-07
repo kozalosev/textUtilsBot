@@ -57,6 +57,7 @@ class TestPunycodeDecoder:
         assert self.decoder.can_process("url:xn--b1agh1afp")
         assert self.decoder.can_process("url: xn--b1agh1afp")
         assert not self.decoder.can_process("url: привет")
+        assert not self.decoder.can_process("url: xn--привет")
 
     def test_process(self):
         assert self.decoder.transform("xn--b1agh1afp") == "привет"
