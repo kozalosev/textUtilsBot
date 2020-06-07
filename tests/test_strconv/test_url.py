@@ -8,6 +8,7 @@ class TestURLEncoder:
         assert not self.encoder.can_process("Hello World")
         assert self.encoder.can_process("url:Hello World")
         assert self.encoder.can_process("url: Hello World")
+        assert not self.encoder.can_process("url:Hello%20World")
 
     def test_process(self):
         assert self.encoder.transform("Hello World") == "Hello%20World"
@@ -40,6 +41,7 @@ class TestPunycodeEncoder:
         assert not self.encoder.can_process("привет")
         assert self.encoder.can_process("url:привет")
         assert self.encoder.can_process("url: привет")
+        assert not self.encoder.can_process("url:xn--b1agh1afp")
 
     def test_process(self):
         assert self.encoder.transform("привет") == "xn--b1agh1afp"

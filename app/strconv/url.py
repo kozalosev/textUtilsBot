@@ -11,6 +11,9 @@ from urllib.parse import quote, unquote
 from txtproc.abc import PrefixedTextProcessor
 
 
+_re_url_encoded_char = re.compile("%[0-9]{2}")
+
+
 class URLPrefixedTextProcessor(PrefixedTextProcessor, ABC):
     @classmethod
     def get_prefix(cls) -> str:
@@ -18,30 +21,36 @@ class URLPrefixedTextProcessor(PrefixedTextProcessor, ABC):
 
 
 class URLEncoder(URLPrefixedTextProcessor):
+    @classmethod
+    def text_filter(cls, text: str) -> bool:
+        return _re_url_encoded_char.search(text) is None
+
     def transform(self, text: str) -> str:
         return quote(text)
 
 
 class URLDecoder(URLPrefixedTextProcessor):
-    re_encoded_char = re.compile("%[0-9]{2}")
-
     @classmethod
-    def can_process(cls, query: str) -> bool:
-        return super().can_process(query) and cls.re_encoded_char.search(query)
+    def text_filter(cls, text: str) -> bool:
+        return _re_url_encoded_char.search(text) is not None
 
     def transform(self, text: str) -> str:
         return unquote(text)
 
 
 class PunycodeEncoder(URLPrefixedTextProcessor):
+    @classmethod
+    def text_filter(cls, text: str) -> bool:
+        return "xn--" not in text
+
     def transform(self, text: str) -> str:
         return text.encode('idna').decode('utf-8')
 
 
 class PunycodeDecoder(URLPrefixedTextProcessor):
     @classmethod
-    def can_process(cls, query: str) -> bool:
-        return super().can_process(query) and "xn--" in query
+    def text_filter(cls, text: str) -> bool:
+        return "xn--" in text
 
     def transform(self, text: str) -> str:
         return text.encode('utf-8').decode('idna')

@@ -118,13 +118,28 @@ class PrefixedTextProcessor(TextProcessor, ABC):
         pass
 
     @classmethod
+    @abstractmethod
+    def text_filter(cls, text: str) -> bool:
+        """
+        Override this method instead of `can_process()` to determine if the
+        processor can handle the query.
+
+        :param text: the query with prefix stripped off
+        :return: True if the processor can handle the query
+        """
+        pass
+
+    @classmethod
+    def _strip_prefix(cls, query: str) -> str:
+        """Returns text without the prefix."""
+        return query[len(cls.get_prefix())+1:].lstrip()
+
+    @classmethod
     def can_process(cls, query: str) -> bool:
-        """Feel free to override this method if you have a more complex condition."""
-        return query.startswith(cls.get_prefix() + ':')
+        return query.startswith(cls.get_prefix() + ':') and cls.text_filter(cls._strip_prefix(query))
 
     def process(self, query: str) -> str:
-        query_without_prefix = query[len(self.get_prefix())+1:].lstrip()
-        return self.transform(query_without_prefix)
+        return self.transform(self._strip_prefix(query))
 
 
 class Exclusive:
