@@ -25,7 +25,7 @@ text_processors = TextProcessorsLoader(strconv)
 @bot.command("/help")
 @bot.default
 async def start(chat: Chat, _) -> None:
-    lang = localizations.get_lang(chat.message['from']['language_code'])
+    lang = localizations.get_lang(chat.message['from'].get('language_code'))
     await chat.send_text(lang['help_message'])
     await chat.send_text(lang['help_message_transformers_list'])
     for processor in text_processors.all_processors:
@@ -44,7 +44,7 @@ async def start(chat: Chat, _) -> None:
 def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
-    lang = localizations.get_lang(request.sender['language_code'])
+    lang = localizations.get_lang(request.sender.get('language_code'))
 
     def transform_query(transformer: TextProcessor, **kwargs):
         processed_str = transformer.process(request.query)
@@ -76,7 +76,7 @@ def inline_request_handler(request: InlineQuery) -> None:
 
 @bot.callback
 def decrypt(_, callback_query: CallbackQuery) -> None:
-    not_found_msg = localizations.get_phrase(callback_query.src['from']['language_code'], 'missing_original_text')
+    not_found_msg = localizations.get_phrase(callback_query.src['from'].get('language_code'), 'missing_original_text')
     message = msgdb.select(callback_query.data) or not_found_msg
     callback_query.answer(text=message, cache_time=DECRYPT_BUTTON_CACHE_TIME)
 
