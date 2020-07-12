@@ -2,6 +2,7 @@
 
 import re
 from abc import ABC, abstractmethod
+from typing import Collection, Optional
 
 from .util import classproperty
 
@@ -96,35 +97,68 @@ class TextProcessor(ABC):
 class PrefixedTextProcessor(TextProcessor, ABC):
     """
     Base class for text processors that's not used by default, only when text
-    starts with some prefix, like this: "{prefix}: {text}".
+    starts with some prefix(-es), like this: "{prefix}: {text}". Perfectly fits
+    for URL addresses (they start with "http://" or "https://").
 
     Instead of defining methods 'can_process' and 'process' you must define
-    methods 'get_prefix', that returns (obviously) the prefix, and 'transform',
-    that takes the text without prefix.
+    methods 'get_prefixes', that returns (obviously) a collection of prefixes,
+    and 'transform', that takes the text (with or without prefix, depends on the
+    `should_strip_prefix` class variable).
     """
+    should_strip_prefix = False
 
     @classmethod
     @abstractmethod
-    def get_prefix(cls) -> str:
-        """A prefix without trailing colon."""
+    def get_prefixes(cls) -> Collection[str]:
+        """A collection of prefixes."""
         pass
 
     @abstractmethod
     def transform(self, text: str) -> str:
         """
         This method has the same meaning as the 'process' method for usual text
-        processors, but it takes the text with prefix cut off.
+        processors, but it takes the text with prefix cut off (if variable
+        `should_strip_prefix` is True).
         """
         pass
 
     @classmethod
+    @abstractmethod
+    def text_filter(cls, text: str) -> bool:
+        """
+        Override this method instead of `can_process()` to determine if the
+        processor can handle the query.
+
+        :param text: the query with prefix stripped off (or not if `should_strip_prefix` is False)
+        :return: True if the processor can handle the query
+        """
+        pass
+
+    @classmethod
+    def _prepare(cls, query: str, prefix: Optional[str] = None) -> str:
+        """
+        Prepares the query to handle by a processor.
+
+        The behavior of this method depends on the `should_strip_prefix` class
+        variable. If it's True, the prefix will be cut off. If it's False,
+        the query will be passed as-is.
+
+        :param query: a text query to prepare
+        :param prefix: if the prefix is already known, pass it here to prevent double computation
+        """
+        if not cls.should_strip_prefix:
+            return query
+
+        if prefix is None:
+            prefix = next(p for p in cls.get_prefixes() if query.startswith(p))
+        return query[len(prefix):].lstrip()
+
+    @classmethod
     def can_process(cls, query: str) -> bool:
-        """Feel free to override this method if you have a more complex condition."""
-        return query.startswith(cls.get_prefix() + ':')
+        return any(query.startswith(p) and cls.text_filter(cls._prepare(query, p)) for p in cls.get_prefixes())
 
     def process(self, query: str) -> str:
-        query_without_prefix = query[len(self.get_prefix())+1:].lstrip()
-        return self.transform(query_without_prefix)
+        return self.transform(self._prepare(query))
 
 
 class Exclusive:
