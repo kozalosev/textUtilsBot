@@ -172,10 +172,10 @@ class Reversible:
 
 
 class Universal:
-    """Mix-in class that's used for processors that can handle any text."""
+    """Mix-in class that's used for processors that can handle any non-empty text."""
     @classmethod
-    def can_process(cls, _: str) -> bool:
-        return True
+    def can_process(cls, query: str) -> bool:
+        return len(query) > 0
 
 
 class HTML:
