@@ -19,9 +19,9 @@ def spaced_text(text: str) -> str:
 
 
 class BannerMaker(Universal, HTML, TextProcessor):
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         banner = spaced_text(escape_html(query)).upper()
         return "<code>{}</code>".format(banner)
 
-    def get_description(self, query: str) -> str:
+    def get_description(self, query: str, lang_code: str = "") -> str:
         return spaced_text(query).upper()
