@@ -6,7 +6,7 @@ from txtproc.abc import TextProcessor, Universal
 
 
 class LanguageLayoutSwitcher(Universal, TextProcessor):
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         """
         'ghbdtn' => 'привет'
         'руддщ' => 'hello'

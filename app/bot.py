@@ -8,17 +8,24 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
+from strconv.util.currates import update_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor
 from txtprocutil import resolve_text_processor_name
 from data.config import *
+from data.currates_conf import EXCHANGE_RATE_SOURCES
 from queryutil import *
 
 
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
+logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
 text_processors = TextProcessorsLoader(strconv)
+
+async_tasks = [
+    update_rates_async_loop(EXCHANGE_RATE_SOURCES)
+]
 
 
 @bot.command("/start")
@@ -44,11 +51,12 @@ async def start(chat: Chat, _) -> None:
 def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
-    lang = localizations.get_lang(request.sender.get('language_code'))
+    lang_code = request.sender.get('language_code')
+    lang = localizations.get_lang(lang_code)
 
     def transform_query(transformer: TextProcessor, **kwargs):
-        processed_str = transformer.process(request.query)
-        description = transformer.get_description(request.query)
+        processed_str = transformer.process(request.query, lang_code)
+        description = transformer.get_description(request.query, lang_code)
         parse_mode = "HTML" if transformer.use_html else ""
         localized_transformer_name = resolve_text_processor_name(transformer, lang)
         add_article(localized_transformer_name, processed_str, description, parse_mode, **kwargs)
@@ -82,7 +90,11 @@ def decrypt(_, callback_query: CallbackQuery) -> None:
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    for x in async_tasks:
+        loop.create_task(x)
+
     if DEBUG:
         loop.run_until_complete(bot.delete_webhook())
         bot.run(debug=True)

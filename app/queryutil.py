@@ -1,10 +1,14 @@
 """Utilities to make composing of inline query results easier."""
 
+import logging
+
 
 class InlineQueryResultsBuilder:
     """A helper class to make the creation of a result to an inline query a bit easier.
     It takes responsibility for setting proper `id`s to your `InlineQueryResult`s
     """
+
+    _logger = logging.getLogger(__name__)
 
     def __init__(self):
         self._id = 0
@@ -23,8 +27,14 @@ class InlineQueryResultsBuilder:
         return self
 
     def build_list(self) -> list:
-        """:return: a copy of the internal list"""
-        return self._list.copy()
+        """:return: a copy of the internal list with non-empty results"""
+        def non_empty_message(x) -> bool:
+            return 'input_message_content' not in x or len(x['input_message_content']['message_text']) > 0
+        valid_msgs = [x for x in self._list if non_empty_message(x)]
+        if len(valid_msgs) != len(self._list):
+            invalid_msgs = [x for x in self._list if not non_empty_message(x)]
+            self._logger.warning(f"Some empty inline results were filtered out: {invalid_msgs}")
+        return valid_msgs
 
 
 def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_description: int = 120) -> callable:

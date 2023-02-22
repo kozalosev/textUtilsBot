@@ -60,16 +60,16 @@ class TextProcessor(ABC):
         pass
 
     @abstractmethod
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         """Transform the query and return the result."""
         pass
 
-    def get_description(self, query: str) -> str:
+    def get_description(self, query: str, lang_code: str = "") -> str:
         """
         By default, description of the message equals to the processed text itself.
         This method allows subclasses to override this behavior.
         """
-        return self.process(query)
+        return self.process(query, lang_code)
 
     @classproperty
     @classmethod
@@ -157,7 +157,7 @@ class PrefixedTextProcessor(TextProcessor, ABC):
     def can_process(cls, query: str) -> bool:
         return any(query.startswith(p) and cls.text_filter(cls._prepare(query, p)) for p in cls.get_prefixes())
 
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return self.transform(self._prepare(query))
 
 
@@ -172,10 +172,10 @@ class Reversible:
 
 
 class Universal:
-    """Mix-in class that's used for processors that can handle any text."""
+    """Mix-in class that's used for processors that can handle any non-empty text."""
     @classmethod
-    def can_process(cls, _: str) -> bool:
-        return True
+    def can_process(cls, query: str) -> bool:
+        return len(query) > 0
 
 
 class HTML:

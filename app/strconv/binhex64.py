@@ -14,7 +14,7 @@ from .util.binhex64 import *
 
 
 class BinaryEncoder(Universal, Encoder):
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return str_to_bin(query)
 
 
@@ -23,12 +23,12 @@ class BinaryDecoder(Decoder):
     def can_process(cls, query: str) -> bool:
         return all(char in ('0', '1', ' ') for char in query) and bin_to_str(query)
 
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return bin_to_str(query)
 
 
 class HexadecimalEncoder(Universal, Encoder):
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return str_to_hex(query)
 
 
@@ -41,12 +41,12 @@ class HexadecimalDecoder(Decoder):
             return False
         return all(char in string.hexdigits + ' ' for char in query) and hex_to_str(query)
 
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return hex_to_str(query)
 
 
 class Base64Encoder(Universal, Encoder):
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return str_to_base64(query)
 
 
@@ -55,5 +55,5 @@ class Base64Decoder(Decoder):
     def can_process(cls, query: str) -> bool:
         return all(char in string.ascii_letters + string.digits + '+/=' for char in query) and base64_to_str(query)
 
-    def process(self, query: str) -> str:
+    def process(self, query: str, lang_code: str = "") -> str:
         return base64_to_str(query)
