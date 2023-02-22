@@ -1,7 +1,7 @@
 [@textUtilsBot](https://t.me/textUtilsBot)
 ==========================================
 
-[![Build Status](https://travis-ci.org/kozalosev/textUtilsBot.svg?branch=master)](https://travis-ci.org/kozalosev/textUtilsBot)
+[![CI Build](https://github.com/kozalosev/textUtilsBot/actions/workflows/ci-build.yml/badge.svg)](https://github.com/kozalosev/textUtilsBot/actions/workflows/ci-build.yml)
 
 A simple bot for [Telegram](https://telegram.org), that has some useful handlers of inline queries to make text
 conversions.
