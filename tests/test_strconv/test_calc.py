@@ -1,8 +1,9 @@
 import pytest
 from pathlib import Path
-from strconv.util import currates
+from strconv import currates
 from strconv.calc import Calculator
-from tests.test_currates import mock_source, mock_source_json
+
+from tests.test_currates.test_fiat import mock_source, mock_source_json
 
 
 @pytest.fixture

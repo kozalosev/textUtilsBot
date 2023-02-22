@@ -8,47 +8,25 @@ It has a function to calculate the coefficient for any pair and convert a value 
 import dbm
 import datetime
 import logging
-from collections import namedtuple
-from dataclasses import dataclass
-from functools import reduce
-
 import requests
 import random
 import asyncio
+from functools import reduce
+from typing import List, Iterable
 
-from typing import List, Dict, Iterable, Callable
+from strconv.currates.types import *
+from strconv.currates.exceptions import *
 
-DateExtractor = Callable[[Dict[str, float]], datetime.date]
-CurrExRatesSrc = namedtuple('CurrExRatesSrc', "name, url, success_field, rates_field, date_extractor")
+__all__ = ['update_rates', 'update_rates_async_loop', 'convert']
 
 __db = dbm.open('app/data/currates.db', flag='c')
 # It's filled in by update_rates() and is used as a cache of sources to fetch data
 # in getter functions if the rates are missing for some reason.
-__src_cache: List[CurrExRatesSrc] = []
+__src_cache: List[DataSource] = []
 _logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ExchangeRates:
-    """Wrapper around the rates fetched from one source"""
-    source_name: str
-    date: datetime.date
-    rates: Dict[str, float]
-
-
-class ExternalServiceError(Exception):
-    pass
-
-
-class UnsupportedCurrency(Exception):
-    def __init__(self, *curr: str) -> None:
-        self.currencies = list(curr)
-
-    def __str__(self) -> str:
-        return f"UnsupportedCurrency{self.currencies}"
-
-
-def update_rates(src: Iterable[CurrExRatesSrc]) -> None:
+def update_rates(src: Iterable[DataSource]) -> None:
     """
     Makes HTTP requests to fetch currency exchange rates from remote sources
 
@@ -72,7 +50,7 @@ def update_rates(src: Iterable[CurrExRatesSrc]) -> None:
         _logger.info("The cache already has the actual currency exchange rates. Skipping...")
         return
 
-    fetched_rates = [_fetch_rates(a, b, c, d, e) for a, b, c, d, e in src]
+    fetched_rates = [_fetch_rates(s) for s in src]
     today_rates = [r.rates for r in fetched_rates if r.date == today]
 
     if len(today_rates) != len(list(src)):
@@ -85,7 +63,7 @@ def update_rates(src: Iterable[CurrExRatesSrc]) -> None:
     __db['date'] = str(today)
 
 
-async def update_rates_async_loop(src: Iterable[CurrExRatesSrc]) -> None:
+async def update_rates_async_loop(src: Iterable[DataSource]) -> None:
     """
     Scheduler function for the asyncio loop
 
@@ -117,15 +95,14 @@ def convert(from_curr: str, to_curr: str, val: float, lang_code: str) -> float:
     return _get_coefficient_for(from_curr, to_curr) * val
 
 
-def _fetch_rates(source_name: str, url: str, success_field: str, rates_field: str,
-                 date_extractor: DateExtractor) -> ExchangeRates:
-    resp = requests.get(url)
+def _fetch_rates(src: DataSource) -> ExchangeRates:
+    resp = requests.get(src.url, headers=src.headers)
     if resp.status_code != 200:
         raise ExternalServiceError(f"{resp.status_code} {resp.reason}")
     resp = resp.json()
-    if not resp[success_field]:
+    if not src.status_checker(resp):
         raise ExternalServiceError(resp)
-    return ExchangeRates(source_name, date_extractor(resp), resp[rates_field])
+    return ExchangeRates(src.name, src.date_extractor(resp), src.rates_extractor(resp))
 
 
 def _get_coefficient_for(from_curr: str, to_curr: str) -> float:

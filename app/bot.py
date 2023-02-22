@@ -8,7 +8,7 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
-from strconv.util.currates import update_rates_async_loop
+from strconv.currates import update_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor
 from txtprocutil import resolve_text_processor_name
 from data.config import *
