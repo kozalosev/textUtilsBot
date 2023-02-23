@@ -16,19 +16,19 @@ if cmp --silent "examples/config.py" "app/data/config.py"; then
     exit
 fi
 
-if [ ! -f "app/data/currates_config.py" ]; then
+if [ ! -f "app/data/currates_conf.py" ]; then
     echo "A configuration file was not found. Copying the skeleton..."
 
-    cp examples/currates_config.py app/data/currates_config.py
-    sudo chgrp www-data app/data/currates_config.py
-    chmod o-r app/data/currates_config.py
+    cp examples/currates_conf.py app/data/currates_conf.py
+    sudo chgrp www-data app/data/currates_conf.py
+    chmod o-r app/data/currates_conf.py
 
-    echo "Edit the 'app/data/currates_config.py' file and run this script again."
+    echo "Edit the 'app/data/currates_conf.py' file and run this script again."
     exit
 fi
 
-if cmp --silent "examples/currates_config.py" "app/data/currates_config.py"; then
-    echo "Don't forget to change the values in the 'app/data/currates_config.py' file!"
+if cmp --silent "examples/currates_conf.py" "app/data/currates_conf.py"; then
+    echo "Don't forget to change the values in the 'app/data/currates_conf.py' file!"
     exit
 fi
 

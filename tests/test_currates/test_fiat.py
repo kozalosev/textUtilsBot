@@ -1,9 +1,10 @@
 import datetime
-from strconv.util import currates
+from strconv import currates
+from strconv.currates.extractors import field, iso_date
 from pathlib import Path
 
-mock_source = currates.CurrExRatesSrc('mock_source', 'http://localhost/', 'success', 'rates',
-                                      lambda json: datetime.date.fromisoformat(json['date']))
+mock_source = currates.DataSource('mock_source', 'http://localhost/fiat',
+                                  field('success'), field('rates'), iso_date('date'))
 mock_rub = 73.200918
 mock_eur = 0.937251
 mock_cny = 6.826292

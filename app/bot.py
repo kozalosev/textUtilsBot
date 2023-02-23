@@ -8,7 +8,7 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
-from strconv.util.currates import update_rates_async_loop
+from strconv.currates import update_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor
 from txtprocutil import resolve_text_processor_name
 from data.config import *
@@ -103,4 +103,4 @@ if __name__ == '__main__':
         loop.run_until_complete(webhook_future)
         app = bot.create_webhook_app('/{}/{}'.format(NAME, TOKEN), loop)
         os.umask(0o137)    # rw-r----- for the unix socket
-        web.run_app(app, path=UNIX_SOCKET)
+        web.run_app(app, path=UNIX_SOCKET, loop=loop)
