@@ -4,7 +4,7 @@ import re
 import logging
 from io import StringIO
 from txtproc.abc import TextProcessor
-from strconv import currates
+from . import currates
 
 _subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ]+?) *?"
                        r"((?P<from_curr>[A-Z]{3,}|[$€₽£¥]) *?"
