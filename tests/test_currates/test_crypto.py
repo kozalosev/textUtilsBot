@@ -13,7 +13,7 @@ mock_source = currates.DataSource('mock_source', 'http://localhost/crypto',
 mock_eth = 1644.6620025731618
 mock_source_json = f"""{{
     "status": {{
-        "timestamp": "{datetime.date.today().isoformat()}T05:07:57.566Z",
+        "timestamp": "{datetime.datetime.utcnow().date().isoformat()}T05:07:57.566Z",
         "error_code": 0
     }},
     "data": [
