@@ -4,12 +4,12 @@ import re
 import logging
 from io import StringIO
 from txtproc.abc import TextProcessor
-from strconv import currates
+from . import currates
 
 _subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ]+?) *?"
-                       r"((?P<from_curr>[A-Z]{3}|[$€₽£¥]) *?"
+                       r"((?P<from_curr>[A-Z]{3,}|[$€₽£¥]) *?"
                        r"(to|>) *?"
-                       r"(?P<to_curr>[A-Z]{3}|[$€₽£¥]))?? *?}}")
+                       r"(?P<to_curr>[A-Z]{3,}|[$€₽£¥]))?? *?}}")
 _logger = logging.getLogger(__file__)
 _MAX_RECURSION = 100
 

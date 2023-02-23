@@ -3,7 +3,7 @@ from strconv import currates
 from strconv.currates.extractors import iso_date
 from pathlib import Path
 
-from tests.test_currates import test_fiat
+from . import test_fiat
 
 mock_source = currates.DataSource('mock_source', 'http://localhost/crypto',
                                   status_checker=lambda json: json['status']['error_code'] == 0,
@@ -13,7 +13,7 @@ mock_source = currates.DataSource('mock_source', 'http://localhost/crypto',
 mock_eth = 1644.6620025731618
 mock_source_json = f"""{{
     "status": {{
-        "timestamp": "{datetime.date.today().isoformat()}T05:07:57.566Z",
+        "timestamp": "{datetime.datetime.utcnow().date().isoformat()}T05:07:57.566Z",
         "error_code": 0
     }},
     "data": [

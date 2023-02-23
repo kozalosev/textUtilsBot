@@ -14,8 +14,8 @@ import asyncio
 from functools import reduce
 from typing import List, Iterable
 
-from strconv.currates.types import *
-from strconv.currates.exceptions import *
+from .types import *
+from .exceptions import *
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'convert']
 

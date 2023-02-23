@@ -5,6 +5,7 @@ NAME = "textUtilsBot"
 
 HOST = "bots.example.org"
 SERVER_PORT = 8443                        # A port on a front-end web server.
+METRICS_PORT = 8000
 UNIX_SOCKET = "/tmp/textUtilsBot.sock"    # A Unix domain socket to communicate with that web server.
 
 # Set to 'False' for production use.

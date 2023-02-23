@@ -3,13 +3,13 @@
 import os
 import asyncio
 from aiohttp import web
-from aiotg import Bot, Chat, InlineQuery, CallbackQuery
+from aiotg import Bot, Chat, InlineQuery, CallbackQuery, ChosenInlineResult
 from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
 from strconv.currates import update_rates_async_loop
-from txtproc import TextProcessorsLoader, TextProcessor
+from txtproc import TextProcessorsLoader, TextProcessor, metrics
 from txtprocutil import resolve_text_processor_name
 from data.config import *
 from data.currates_conf import EXCHANGE_RATE_SOURCES
@@ -21,7 +21,9 @@ DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
+
 text_processors = TextProcessorsLoader(strconv)
+metrics.register(*text_processors.all_processors)
 
 async_tasks = [
     update_rates_async_loop(EXCHANGE_RATE_SOURCES)
@@ -59,7 +61,8 @@ def inline_request_handler(request: InlineQuery) -> None:
         description = transformer.get_description(request.query, lang_code)
         parse_mode = "HTML" if transformer.use_html else ""
         localized_transformer_name = resolve_text_processor_name(transformer, lang)
-        add_article(localized_transformer_name, processed_str, description, parse_mode, **kwargs)
+        add_article(localized_transformer_name, processed_str, description, parse_mode,
+                    transformer.snake_case_name, **kwargs)
 
     exclusive_processors = text_processors.match_exclusive_processors(request.query)
     if exclusive_processors:
@@ -89,7 +92,14 @@ def decrypt(_, callback_query: CallbackQuery) -> None:
     callback_query.answer(text=message, cache_time=DECRYPT_BUTTON_CACHE_TIME)
 
 
+@bot.chosen_inline_result_callback
+def chosen_inline_result_callback(chosen_result: ChosenInlineResult) -> None:
+    metrics.inc(chosen_result.result_id)
+
+
 if __name__ == '__main__':
+    metrics.serve(METRICS_PORT)
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     for x in async_tasks:
