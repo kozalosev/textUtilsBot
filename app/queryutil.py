@@ -15,13 +15,14 @@ class InlineQueryResultsBuilder:
         self._list = []
 
     # noinspection PyShadowingBuiltins
-    def add(self, type: str, **kwargs) -> "InlineQueryResultsBuilder":
+    def add(self, type: str, result_id: str = "", **kwargs) -> "InlineQueryResultsBuilder":
         """Append a new result to the internal list. Can be used in chains of methods.
         :param type: see https://core.telegram.org/bots/api#inlinequeryresult
+        :param result_id: ``id`` of the result will be either an index number or a f"{index_number}:{id}" string
         """
         obj = kwargs
         obj['type'] = type
-        obj['id'] = str(self._id)
+        obj['id'] = f"{self._id}:{result_id}" if result_id else str(self._id)
         self._id += 1
         self._list.append(obj)
         return self
@@ -44,7 +45,8 @@ def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_descripti
     :return: a function `(title: str, text: str, **kwargs) -> None` which you should use to add new articles to the
         storage
     """
-    def add_article(title: str, text: str, description: str = None, parse_mode: str = "", **kwargs) -> None:
+    def add_article(title: str, text: str, description: str = None, parse_mode: str = "",
+                    article_id: str = "", **kwargs) -> None:
         if not description:
             if len(text) > max_description:
                 description = text[:max_description-1].rstrip() + '…'
@@ -52,6 +54,7 @@ def get_articles_generator_for(storage: InlineQueryResultsBuilder, max_descripti
                 description = text
         storage.add(
             type='article',
+            result_id=article_id,
             title=title,
             description=description,
             input_message_content={

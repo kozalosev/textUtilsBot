@@ -7,11 +7,12 @@ def test_answers():
         test=True,
     ).add(
         type='bar',
-        test=0
+        test=0,
+        result_id='foo'
     )
     e = [
         {'type': 'foo', 'id': '0', 'test': True},
-        {'type': 'bar', 'id': '1', 'test': 0}
+        {'type': 'bar', 'id': '1:foo', 'test': 0}
     ]
     assert s.build_list() == e
 
@@ -21,7 +22,7 @@ def test_add_article_to():
     add_article = get_articles_generator_for(a, max_description=10)
     add_article("foo", "test 1")
     add_article("bar", "test long string")
-    add_article("baz", "<b>test 3</b>", description="test 3", parse_mode="HTML")
+    add_article("baz", "<b>test 3</b>", description="test 3", parse_mode="HTML", article_id="foo")
     e = [{
         'type': 'article',
         'id': '0',
@@ -42,7 +43,7 @@ def test_add_article_to():
         }
     }, {
         'type': 'article',
-        'id': '2',
+        'id': '2:foo',
         'title': 'baz',
         'description': 'test 3',
         'input_message_content': {
