@@ -102,8 +102,8 @@ if __name__ == '__main__':
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    for x in async_tasks:
-        loop.create_task(x)
+    tasks = [loop.create_task(t) for t in async_tasks]
+    bot.on_cleanup(lambda: [t.cancel() for t in tasks])
 
     if DEBUG:
         loop.run_until_complete(bot.delete_webhook())
