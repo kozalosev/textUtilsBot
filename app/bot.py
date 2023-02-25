@@ -102,15 +102,15 @@ if __name__ == '__main__':
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    for x in async_tasks:
-        loop.create_task(x)
+    tasks = [loop.create_task(t) for t in async_tasks]
+    bot.on_cleanup(lambda: [t.cancel() for t in tasks])
 
     if DEBUG:
         loop.run_until_complete(bot.delete_webhook())
         bot.run(debug=True)
     else:
-        webhook_future = bot.set_webhook("https://{}:{}/{}/{}".format(HOST, SERVER_PORT, NAME, TOKEN))
+        webhook_future = bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}")
         loop.run_until_complete(webhook_future)
-        app = bot.create_webhook_app('/{}/{}'.format(NAME, TOKEN), loop)
+        app = bot.create_webhook_app(f"/{NAME}", loop)
         os.umask(0o137)    # rw-r----- for the unix socket
         web.run_app(app, path=UNIX_SOCKET, loop=loop)
