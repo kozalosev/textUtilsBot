@@ -16,7 +16,7 @@ send me a pull request.
 Requirements
 ------------
 
-- [Python 3.7+](https://www.python.org)
+- [Python 3.10+](https://www.python.org) (3.7+ until [v2.2.0](https://github.com/kozalosev/textUtilsBot/releases/tag/v2.2.0))
 - [aiotg](https://pypi.python.org/pypi/aiotg)
 - [aiohttp](https://pypi.python.org/pypi/aiohttp)
 
