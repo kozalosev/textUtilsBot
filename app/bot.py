@@ -109,8 +109,8 @@ if __name__ == '__main__':
         loop.run_until_complete(bot.delete_webhook())
         bot.run(debug=True)
     else:
-        webhook_future = bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}")
+        webhook_future = bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}/")
         loop.run_until_complete(webhook_future)
-        app = bot.create_webhook_app(f"/{NAME}", loop)
+        app = bot.create_webhook_app(f"/{NAME}/", loop)
         os.umask(0o137)    # rw-r----- for the unix socket
         web.run_app(app, path=UNIX_SOCKET, loop=loop)

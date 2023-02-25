@@ -7,4 +7,5 @@ app/data/config.py
 app/data/currates_conf.py
 log.txt
 messages.db
+currates.db
 currates.db.*
