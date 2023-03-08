@@ -19,9 +19,9 @@ class LanguageLayoutSwitcher(Universal, TextProcessor):
             return query.translate(_layouts_match_table_en_ru)
 
 
-_russian_letters = "абвгдеёжзийклмонпрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-_latin_layout = "qwertyuiop[]asdfghjkl;'\zxcvbnm,./`QWERTYUIOP{}ASDFGHJKL:\"|ZXCVBNM<>?~@#$^&"
-_cyrillic_layout = "йцукенгшщзхъфывапролджэ\ячсмитьбю.ёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭ/ЯЧСМИТЬБЮ,Ё\"№;:?"
+_russian_letters = r"абвгдеёжзийклмонпрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+_latin_layout = r"qwertyuiop[]asdfghjkl;'\zxcvbnm,./`QWERTYUIOP{}ASDFGHJKL:\"|ZXCVBNM<>?~@#$^&"
+_cyrillic_layout = r"йцукенгшщзхъфывапролджэ\ячсмитьбю.ёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭ/ЯЧСМИТЬБЮ,Ё\"№;:?"
 
 _layouts_match_table_en_ru = str.maketrans(_latin_layout, _cyrillic_layout)
 _layouts_match_table_ru_en = str.maketrans(_cyrillic_layout, _latin_layout)
