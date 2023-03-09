@@ -131,6 +131,7 @@ def _ensure_not_symbol(curr: str, lang_code: str) -> str:
         case "€": return "EUR"
         case "₽" | "RUR": return "RUB"
         case "£": return "GBP"
+        case "₿": return "BTC"
     return curr
 
 
