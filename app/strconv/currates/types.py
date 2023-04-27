@@ -17,6 +17,7 @@ class DataSource:
     rates_extractor: RatesExtractor
     date_extractor: DateExtractor
     headers: Optional[Dict[str, str]] = None    # if API_KEY is not in URL
+    volatile: bool = False
 
 
 @dataclass

@@ -4,7 +4,9 @@ from strconv.currates.extractors import field, iso_date, timestamp_date
 __EXCHANGE_RATE_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
 __COINMARKETCAP_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
 
-_COINMARKETCAP_LIMIT = 500
+_COINMARKETCAP_LIMIT = 1200
+
+UPDATE_VOLATILE_PERIOD_IN_HOURS = 1
 
 EXCHANGE_RATE_SOURCES = [
     DataSource('api.exchangerate.host', "https://api.exchangerate.host/latest?base=USD",
@@ -16,5 +18,6 @@ EXCHANGE_RATE_SOURCES = [
                status_checker=lambda json: json['status']['error_code'] == 0,
                rates_extractor=lambda json: {x['symbol']:(1/x['quote']['USD']['price']) for x in json['data']},
                date_extractor=iso_date('status.timestamp'),
-               headers={'X-CMC_PRO_API_KEY': __COINMARKETCAP_API_KEY}),
+               headers={'X-CMC_PRO_API_KEY': __COINMARKETCAP_API_KEY},
+               volatile=True),
 ]

@@ -8,11 +8,11 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
-from strconv.currates import update_rates_async_loop
+from strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor, metrics
 from txtprocutil import resolve_text_processor_name
 from data.config import *
-from data.currates_conf import EXCHANGE_RATE_SOURCES
+from data.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
 from queryutil import *
 
 
@@ -26,7 +26,8 @@ text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)
 
 async_tasks = [
-    update_rates_async_loop(EXCHANGE_RATE_SOURCES)
+    update_rates_async_loop(EXCHANGE_RATE_SOURCES),
+    update_volatile_rates_async_loop(EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS),
 ]
 
 
