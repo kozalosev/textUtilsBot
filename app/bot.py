@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import json
 import os
 import asyncio
 from aiohttp import web
@@ -8,11 +8,11 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
-from strconv.currates import update_rates_async_loop
+from strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor, metrics
-from txtprocutil import resolve_text_processor_name
+from txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
 from data.config import *
-from data.currates_conf import EXCHANGE_RATE_SOURCES
+from data.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
 from queryutil import *
 
 
@@ -26,7 +26,8 @@ text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)
 
 async_tasks = [
-    update_rates_async_loop(EXCHANGE_RATE_SOURCES)
+    update_rates_async_loop(EXCHANGE_RATE_SOURCES),
+    update_volatile_rates_async_loop(EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS),
 ]
 
 
@@ -35,18 +36,31 @@ async_tasks = [
 @bot.default
 async def start(chat: Chat, _) -> None:
     lang = localizations.get_lang(chat.message['from'].get('language_code'))
-    await chat.send_text(lang['help_message'])
-    await chat.send_text(lang['help_message_transformers_list'])
-    for processor in text_processors.all_processors:
-        help_message_key = 'help_' + processor.snake_case_name
-        localized_help_message = lang[help_message_key]
-        # skip empty and undefined help messages
-        if len(localized_help_message.strip()) == 0 or localized_help_message == help_message_key:
-            continue
-        localized_processor_name = resolve_text_processor_name(processor, lang)
-        answer = f"*{localized_processor_name}*\n\n{localized_help_message}"
-        await chat.send_text(answer, parse_mode="Markdown")
-    chat.send_text(lang['help_send_suggestion'], parse_mode="Markdown")
+    messages = collect_help_messages(text_processors.all_processors, lang)
+    kb = InlineKeyboardBuilder()
+    for row in divide_chunks(messages, 2):
+        r = kb.add_row()
+        for cmd in row:
+            r.add(cmd.title, callback_data=f"help:{cmd.name}")
+    chat.send_text(lang['help_message'], parse_mode="Markdown", reply_markup=json.dumps(kb.build()))
+
+
+@bot.callback("help:")
+def help_callback(chat: Chat, query: CallbackQuery, _: str) -> None:
+    lang = localizations.get_lang(query.src['from'].get('language_code'))
+    proc_name = query.data[5:]
+    localized_proc_name = lang[f"hint_{proc_name}"]
+    src_msg = query.src['message']
+    src_text: str = src_msg.get('text')
+    if src_text and localized_proc_name == src_text.partition('\n')[0]:
+        query.answer(text=lang['current_help_tab'])
+    else:
+        messages = collect_help_messages(text_processors.all_processors, lang)
+        msg = [m for m in messages if m.name == proc_name]
+        answer = f"*{localized_proc_name}*\n\n{msg[0].description}"
+        bot.edit_message_text(chat.id, src_msg['message_id'], answer,
+                              parse_mode='Markdown',
+                              reply_markup=json.dumps(src_msg['reply_markup']))
 
 
 @bot.inline

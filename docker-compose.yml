@@ -8,7 +8,9 @@ services:
     working_dir: /home/textUtilsBot
     restart: always
     ports:
-      - 127.0.0.1:8000:8000
+      - "127.0.0.1:8000:8000"
     volumes:
     - "./app/data:/home/textUtilsBot/app/data"
     - "/tmp:/tmp"
+    logging:
+      driver: local
