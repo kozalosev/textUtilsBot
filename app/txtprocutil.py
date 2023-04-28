@@ -6,10 +6,13 @@ Note, the 'resolve_text_processor_name' function must not be placed in the
 localization system!
 """
 
-from typing import Type, Union
+from dataclasses import dataclass
+from typing import Type, Union, Iterable, List, TypeVar, Collection, FrozenSet
 from klocmod import LanguageDictionary
 
 from txtproc import TextProcessor
+
+T = TypeVar('T')
 
 
 def resolve_text_processor_name(processor: Union[Type[TextProcessor], TextProcessor], lang: LanguageDictionary) -> str:
@@ -29,3 +32,33 @@ def resolve_text_processor_name(processor: Union[Type[TextProcessor], TextProces
     if localized_processor_name == key:
         return processor.name
     return localized_processor_name
+
+
+@dataclass
+class TextProcessorHelp:
+    name: str
+    title: str
+    description: str
+
+
+def collect_help_messages(processors: FrozenSet[Type[TextProcessor]],
+                          lang: LanguageDictionary) -> List[TextProcessorHelp]:
+    """Collects help information about text processors in a more convenient representation."""
+    res = []
+    for processor in processors:
+        proc_name = processor.snake_case_name
+        help_message_key = 'help_' + proc_name
+        localized_help_message = lang[help_message_key]
+        # skip empty and undefined help messages
+        if len(localized_help_message.strip()) == 0 or localized_help_message == help_message_key:
+            continue
+        localized_processor_name = resolve_text_processor_name(processor, lang)
+        res.append(TextProcessorHelp(proc_name, localized_processor_name, localized_help_message))
+    return res
+
+
+def divide_chunks(lst: Collection[T], n: int) -> Iterable[Collection[T]]:
+    """Split a list to a list of lists of n elements."""
+    lst = list(lst)
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
