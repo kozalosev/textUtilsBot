@@ -42,7 +42,7 @@ def bin_to_str(b: str) -> Optional[str]:
     '01001000 01100101 01101100 01101100 01101111' => 'Hello'
     'usual text' => None
     """
-    b = re.sub("\s+", "", b)
+    b = re.sub(r"\s+", "", b)
     str_bytes = split_every_n_characters(8, b)
     try:
         numbers = [int(b, 2) for b in str_bytes]

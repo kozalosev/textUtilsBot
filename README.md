@@ -332,8 +332,16 @@ PYTHONPATH=app pytest
 
 ##### Run tests on Windows
 
+Command Prompt:
+
 ```cmd
 set PYTHONPATH=app && pytest
+```
+
+PowerShell:
+
+```powershell
+$env:PYTHONPATH='app'; pytest
 ```
 
 All tests must finish successfully.

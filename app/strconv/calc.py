@@ -72,5 +72,4 @@ class Calculator(TextProcessor):
     @staticmethod
     def _format_number(val: float) -> str:
         """3.1415 => 3.14 but 3.00 => 3"""
-        val_int = int(val)
-        return f"{val:.2f}" if val % val_int != 0 else str(val_int)
+        return f"{val:.2f}" if val % 1 != 0 else f"{val:.0f}"

@@ -23,6 +23,7 @@ def test_can_process(calc):
 
 
 @pytest.mark.parametrize("expr,res", [("{{2*2}}", "4"),
+                                      ("{{0.0}}", "0"),
                                       ("foo{{2+2}}bar", "foo4bar"),
                                       ("foo {{2+2*2 EUR to USD}} bar", "foo 6.40 USD bar"),
                                       ("foo {{9.85 ¥ > ₽}} bar {{10/3}} baz", "foo ₽105.63 bar 3.33 baz")])
