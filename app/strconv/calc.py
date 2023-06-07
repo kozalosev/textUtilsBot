@@ -49,10 +49,12 @@ class Calculator(TextProcessor):
             sb.write(query[pos:])
             return sb.getvalue()
         sb.write(query[pos:match.start()])
-        expr = match.group("expr").strip()
+        expr = match.group("expr").strip().replace(",", ".")
         val = _eval_func(expr)
+        # TODO: remove when #37 is fixed (this log will not be useful if the numexpr implementation is used)
         if not isinstance(val, (int, float)):
             self._logger.warning(f"'{val}' is not a number for some reason. The query was '{query}', expr: '{expr}'")
+        # end TODO
         from_curr = match.group("from_curr")
         to_curr = match.group("to_curr")
         if from_curr and to_curr:
