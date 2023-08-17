@@ -76,8 +76,12 @@ async def update_rates_async_loop(src: Iterable[DataSource]) -> None:
         _logger.info("Updating non-volatile rates in asynchronous loop...")
         update_rates(x for x in src if not x.volatile)
 
-        # random delay from 1 to 60 seconds to be a good API user
-        run_in_time = datetime.timedelta(days=1, minutes=5+random.randint(0, 5), seconds=random.randint(0, 60))
+        today_midnight = datetime.datetime.combine(datetime.date.today(), datetime.time())
+        # with random delay from 5 to 15 minutes and 0 to 60 seconds to be a good API user
+        run_at_time = today_midnight + datetime.timedelta(days=1,
+                                                          minutes=random.randint(5, 15),
+                                                          seconds=random.randint(0, 60))
+        run_in_time = run_at_time - datetime.datetime.now()
         _logger.info(f"Delay next update in: {run_in_time}")
         await asyncio.sleep(run_in_time.total_seconds())
 
