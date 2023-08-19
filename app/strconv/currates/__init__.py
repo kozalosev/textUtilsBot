@@ -63,7 +63,8 @@ def update_rates(src: Iterable[DataSource]) -> None:
     rates = reduce(lambda x, y: x | y, today_rates, {})
     for curr, val in rates.items():
         __db[curr] = str(val)
-    __db['date'] = str(today)
+    if not volatile:
+        __db['date'] = str(today)
 
 
 async def update_rates_async_loop(src: Iterable[DataSource]) -> None:
