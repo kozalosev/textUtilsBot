@@ -20,6 +20,7 @@ def test_can_process(calc):
     assert calc.can_process("foo{{2+2}}bar")
     assert calc.can_process("foo {{2+2*2 EUR to USD}} bar")
     assert calc.can_process("foo {{8.5 ¥ > ₽}} bar {{10/3}} baz")
+    assert calc.can_process("{{ (2+2)*2 }}")
 
 
 @pytest.mark.parametrize("expr,res", [("{{2*2}}", "4"),
@@ -27,6 +28,7 @@ def test_can_process(calc):
                                       ("foo{{2+2}}bar", "foo4bar"),
                                       ("foo {{2+2*2 EUR to USD}} bar", "foo 6.40 USD bar"),
                                       ("foo {{9.85 ¥ > ₽}} bar {{10/3}} baz", "foo ₽105.63 bar 3.33 baz"),
-                                      ("{{7,26 / 6}}", "1.21")])
+                                      ("{{7,26 / 6}}", "1.21"),
+                                      ("{{ (2+2)*2 }}", "8")])
 def test_process(calc, expr, res):
     assert calc.process(expr, lang_code="zh") == res
