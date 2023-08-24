@@ -35,5 +35,6 @@ def test_convert(tmp_path: Path, requests_mock):
     requests_mock.get(mock_source.url, text=mock_source_json)
     currates.update_rates([test_fiat.mock_source, mock_source])
 
-    res = currates.convert("ETH", "RUB", 1, lang_code="")
+    res, to_curr = currates.convert("ETH", "RUB", 1, lang_code="")
     assert f"{res:.2f}" == "120390.77"
+    assert to_curr == "RUB"

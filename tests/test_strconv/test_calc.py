@@ -29,6 +29,7 @@ def test_can_process(calc):
                                       ("foo {{2+2*2 EUR to USD}} bar", "foo 6.40 USD bar"),
                                       ("foo {{9.85 ¥ > ₽}} bar {{10/3}} baz", "foo ₽105.63 bar 3.33 baz"),
                                       ("{{7,26 / 6}}", "1.21"),
-                                      ("{{ (2+2)*2 }}", "8")])
+                                      ("{{ (2+2)*2 }}", "8"),
+                                      ("{{ 10 долларов в рубли }}", "732.01 рублей")])
 def test_process(calc, expr, res):
     assert calc.process(expr, lang_code="zh") == res

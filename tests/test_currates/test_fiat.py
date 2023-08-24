@@ -26,11 +26,22 @@ def test_convert(tmp_path: Path, requests_mock):
     requests_mock.get(mock_source.url, text=mock_source_json)
     currates.update_rates([mock_source])
 
-    res = currates.convert("€", "$", 9.85, lang_code="")
+    res, to_curr = currates.convert("€", "$", 9.85, lang_code="")
     assert f"{res:.2f}" == "10.51"
+    assert to_curr == "$"
 
-    res = currates.convert("EUR", "RUB", 9.85, lang_code="")
+    res, to_curr = currates.convert("EUR", "RUB", 9.85, lang_code="")
     assert f"{res:.2f}" == "769.30"
+    assert to_curr == "RUB"
 
-    res = currates.convert("¥", "RUB", 9.85, lang_code="zh")
+    res, to_curr = currates.convert("¥", "RUB", 9.85, lang_code="zh")
     assert f"{res:.2f}" == "105.63"
+    assert to_curr == "RUB"
+
+    res, to_curr = currates.convert("dollar", "rubles", 1.0, lang_code="")
+    assert f"{res:.2f}" == "73.20"
+    assert to_curr == "rubles"
+
+    res, to_curr = currates.convert("доллар", "рубли", 1.0, lang_code="")
+    assert f"{res:.2f}" == "73.20"
+    assert to_curr == "рублей"

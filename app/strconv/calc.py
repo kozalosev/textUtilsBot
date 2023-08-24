@@ -7,9 +7,9 @@ from txtproc.abc import TextProcessor
 from . import currates
 
 _subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?) *?"
-                       r"((?P<from_curr>[A-Z]{3,}|[$€₽£¥]) *?"
-                       r"(to|>) *?"
-                       r"(?P<to_curr>[A-Z]{3,}|[$€₽£¥]))?? *?}}")
+                       r"((?P<from_curr>[A-Zа-я.]{3,}|[$€₽£¥]) *?"
+                       r"(to|>|в) *?"
+                       r"(?P<to_curr>[A-Zа-я.]{3,}|[$€₽£¥]))?? *?}}")
 _logger = logging.getLogger(__file__)
 _MAX_RECURSION = 100
 
@@ -56,7 +56,7 @@ class Calculator(TextProcessor):
         from_curr = match.group("from_curr")
         to_curr = match.group("to_curr")
         if from_curr and to_curr:
-            val = currates.convert(from_curr, to_curr, val, lang_code)
+            val, to_curr = currates.convert(from_curr, to_curr, val, lang_code)
             val = self._format_number(val)
             if len(to_curr) == 1:
                 sb.write(f"{to_curr}{val}")
