@@ -92,7 +92,7 @@ class Currency(CurrABC):
     @classmethod
     def from_code(cls, code: str) -> 'Currency':
         """:returns: a non-abstract instance of the currency from its code"""
-        instance = cls(code)
+        instance = cls(code.upper())
         instance._abstract = False
         return instance
 

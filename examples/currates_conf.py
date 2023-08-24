@@ -24,7 +24,7 @@ EXCHANGE_RATE_SOURCES = [
 ]
 
 CURRENCIES_MAPPING = [
-    Currency('RUB', 'RUR', '₽', 'руб.', 'руб', 'р.', 'р', words=[
+    Currency('RUB', 'RUR', 'rur', '₽', 'руб.', 'руб', 'р.', 'р', words=[
         InEnglish('ruble'), InRussian('рубл', ('ь', 'я', 'ей'))
     ]),
     Currency('USD', '$', words=[

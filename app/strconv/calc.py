@@ -7,9 +7,9 @@ from txtproc.abc import TextProcessor
 from . import currates
 
 _subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?) *?"
-                       r"((?P<from_curr>[A-Zа-я.]{3,}|[$€₽£¥]) *?"
+                       r"((?P<from_curr>[A-Za-zа-я.]{3,}|[$€₽£¥]) *?"
                        r"(to|>|в)? *?"
-                       r"(?P<to_curr>[A-Zа-я.]{3,}|[$€₽£¥])?)?? *?}}")
+                       r"(?P<to_curr>[A-Za-zа-я.]{3,}|[$€₽£¥])?)?? *?}}")
 _logger = logging.getLogger(__file__)
 _MAX_RECURSION = 100
 
