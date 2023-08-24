@@ -20,7 +20,7 @@ class BinaryEncoder(Universal, Encoder):
 
 class BinaryDecoder(Decoder):
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return all(char in ('0', '1', ' ') for char in query) and bin_to_str(query)
 
     def process(self, query: str, lang_code: str = "") -> str:
@@ -34,10 +34,10 @@ class HexadecimalEncoder(Universal, Encoder):
 
 class HexadecimalDecoder(Decoder):
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         # Since this processor is able to handle the same queries the BinaryDecoder can, we need to ensure that
         # we won't swallow binary strings here.
-        if BinaryDecoder.can_process(query):
+        if BinaryDecoder.can_process(query, lang_code):
             return False
         return all(char in string.hexdigits + ' ' for char in query) and hex_to_str(query)
 
@@ -52,7 +52,7 @@ class Base64Encoder(Universal, Encoder):
 
 class Base64Decoder(Decoder):
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return all(char in string.ascii_letters + string.digits + '+/=' for char in query) and base64_to_str(query)
 
     def process(self, query: str, lang_code: str = "") -> str:

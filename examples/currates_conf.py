@@ -1,3 +1,4 @@
+from strconv.currates.currdsl import Currency, InEnglish, InRussian
 from strconv.currates.types import DataSource
 from strconv.currates.extractors import field, iso_date, timestamp_date
 
@@ -20,4 +21,22 @@ EXCHANGE_RATE_SOURCES = [
                date_extractor=iso_date('status.timestamp'),
                headers={'X-CMC_PRO_API_KEY': __COINMARKETCAP_API_KEY},
                volatile=True),
+]
+
+CURRENCIES_MAPPING = [
+    Currency('RUB', 'RUR', 'rur', '₽', 'руб.', 'руб', 'р.', 'р', words=[
+        InEnglish('ruble'), InRussian('рубл', ('ь', 'я', 'ей'))
+    ]),
+    Currency('USD', '$', words=[
+        InEnglish('dollar'), InRussian('доллар', ('', 'а', 'ов'))
+    ]),
+    Currency('EUR', '€', words=[
+        InEnglish('euro'), InRussian('евро')
+    ]),
+    Currency('BTC', '₿', words=[
+        InEnglish('bitcoin'), InRussian('биткоин', ('', 'а', 'ов'))
+    ]),
+    Currency('INR', '₹', '₨', 'Rs', 'Rp'),
+    Currency('GBP', '£'),
+    Currency('ILS', '₪'),
 ]

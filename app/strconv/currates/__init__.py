@@ -12,10 +12,18 @@ import requests
 import random
 import asyncio
 from functools import reduce
-from typing import List, Iterable
+from typing import List, Iterable, Optional
 
+from .localcurr import LOCALE_TO_CURRENCY
+from .currdsl import Currency
 from .types import *
 from .exceptions import *
+
+try:
+    from data.currates_conf import CURRENCIES_MAPPING
+except ModuleNotFoundError:
+    # for tests
+    from examples.currates_conf import CURRENCIES_MAPPING
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'update_volatile_rates_async_loop', 'convert']
 
@@ -105,20 +113,40 @@ async def update_volatile_rates_async_loop(src: Iterable[DataSource], period_in_
         await asyncio.sleep(run_in_time.total_seconds())
 
 
-def convert(from_curr: str, to_curr: str, val: float, lang_code: str) -> float:
+def convert(from_curr: str, to_curr: Optional[str], val: float, lang_code: str) -> (float, str):
     """
     Converts a value from one currency into another
 
     :param from_curr: source currency
-    :param to_curr: destination currency
+    :param to_curr: destination currency (if None, will be inferred from a 'lang_code')
     :param val: numeric value
     :param lang_code: used for conversion '¥' into either 'yen' or 'yuan'
-    :return: converted numeric value
+    :return: converted numeric value and currency name in the right declension
     :raises UnsupportedCurrency: if one or both of the currencies isn't present in our data
+    :raises UnknownLanguageCode: if 'to_curr' is None and cannot be inferred from a 'lang_code'
     """
-    from_curr = _ensure_not_symbol(from_curr, lang_code)
-    to_curr = _ensure_not_symbol(to_curr, lang_code)
-    return _get_coefficient_for(from_curr, to_curr) * val
+    if not to_curr:
+        try:
+            to_curr = LOCALE_TO_CURRENCY[lang_code.upper()]
+        except KeyError:
+            raise UnknownLanguageCode(lang_code)
+    from_curr = _ensure_not_symbol_or_word(from_curr, lang_code)
+    to_curr = _ensure_not_symbol_or_word(to_curr, lang_code)
+    result = _get_coefficient_for(from_curr.code, to_curr.code) * val
+    return result, to_curr.resolve_declension(result)
+
+
+def currency_exists(curr: Optional[str], lang_code: str) -> bool:
+    """:returns: True if a specified currency is present in the database."""
+    if len(__db) == 0:
+        _logger.warning("Currencies disappeared somewhere...")
+        update_rates(__src_cache)
+
+    try:
+        curr = _ensure_not_symbol_or_word(curr or "", lang_code)
+    except UnsupportedCurrency | UnknownLanguageCode:
+        return False
+    return curr and curr.code.upper() in __db
 
 
 def _fetch_rates(src: DataSource) -> ExchangeRates:
@@ -144,23 +172,15 @@ def _get_coefficient_for(from_curr: str, to_curr: str) -> float:
     return to_usd_rate / from_usd_rate
 
 
-def _ensure_not_symbol(curr: str, lang_code: str) -> str:
+def _ensure_not_symbol_or_word(curr: str, lang_code: str) -> Currency:
     if curr == "¥":
-        if 'ja' in lang_code:
-            return "JPY"
-        elif 'zh' in lang_code:
-            return "CNY"
-        else:
-            raise UnsupportedCurrency(f"{curr}:{lang_code}")
-    match curr:
-        case "$": return "USD"
-        case "€": return "EUR"
-        case "₽" | "RUR": return "RUB"
-        case "£": return "GBP"
-        case "₿": return "BTC"
-        case "₹" | "₨" | "Rs" | "Rp": return "INR"
-        case "₪": return "ILS"
-    return curr
+        match lang_code:
+            case 'ja': curr = 'JPY'
+            case 'zh': curr = 'CNY'
+            case _: raise UnsupportedCurrency(f"{curr}:{lang_code}")
+    mappings = (m.clone() for m in CURRENCIES_MAPPING)
+    matched_curr = next((m for m in mappings if m.matches(curr)), None)
+    return matched_curr or Currency.from_code(curr)
 
 
 def _mock_database(temp_file_path: str):

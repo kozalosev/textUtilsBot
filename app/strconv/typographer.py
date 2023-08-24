@@ -20,7 +20,7 @@ class TypographerConverter(TextProcessor):
     ]
 
     @classmethod
-    def can_process(cls, query: str):
+    def can_process(cls, query: str, lang_code: str = ""):
         patterns = (pattern for pattern, replacement in cls.replacements)
         return any(re.search(pattern, query, flags=re.IGNORECASE) for pattern in patterns)
 

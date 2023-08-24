@@ -6,10 +6,10 @@ from io import StringIO
 from txtproc.abc import TextProcessor
 from . import currates
 
-_subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ]+?) *?"
-                       r"((?P<from_curr>[A-Z]{3,}|[$€₽£¥]) *?"
-                       r"(to|>) *?"
-                       r"(?P<to_curr>[A-Z]{3,}|[$€₽£¥]))?? *?}}")
+_subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?) *?"
+                       r"((?P<from_curr>[A-Za-zа-я.]{3,}|[$€₽£¥]) *?"
+                       r"(to|>|в)? *?"
+                       r"(?P<to_curr>[A-Za-zа-я.]{3,}|[$€₽£¥])?)?? *?}}")
 _logger = logging.getLogger(__file__)
 _MAX_RECURSION = 100
 
@@ -30,7 +30,7 @@ class Calculator(TextProcessor):
     _logger = logging.getLogger(__name__)
 
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return bool(_subst_re.search(query))
 
     def process(self, query: str, lang_code: str = "") -> str:
@@ -42,6 +42,9 @@ class Calculator(TextProcessor):
         except currates.UnsupportedCurrency as err:
             self._logger.warning(f"The following currency was requested but is not present in our data: {err}")
             return ""   # the bot will ignore this result
+        except currates.UnknownLanguageCode as err:
+            self._logger.warning(f"The following language code was received but is not present in our data: {err}")
+            return ""  # the bot will ignore this result
 
     def next_expr(self, query: str, lang_code: str, sb: StringIO, pos: int = 0, guard: int = 0) -> str:
         match = _subst_re.search(query, pos=pos)
@@ -51,14 +54,12 @@ class Calculator(TextProcessor):
         sb.write(query[pos:match.start()])
         expr = match.group("expr").strip().replace(",", ".")
         val = _eval_func(expr)
-        # TODO: remove when #37 is fixed (this log will not be useful if the numexpr implementation is used)
         if not isinstance(val, (int, float)):
             self._logger.warning(f"'{val}' is not a number for some reason. The query was '{query}', expr: '{expr}'")
-        # end TODO
         from_curr = match.group("from_curr")
         to_curr = match.group("to_curr")
-        if from_curr and to_curr:
-            val = currates.convert(from_curr, to_curr, val, lang_code)
+        if from_curr:
+            val, to_curr = currates.convert(from_curr, to_curr, val, lang_code)
             val = self._format_number(val)
             if len(to_curr) == 1:
                 sb.write(f"{to_curr}{val}")
