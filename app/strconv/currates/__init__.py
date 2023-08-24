@@ -14,11 +14,16 @@ import asyncio
 from functools import reduce
 from typing import List, Iterable, Optional
 
-from data.currates_conf import CURRENCIES_MAPPING
 from .localcurr import LOCALE_TO_CURRENCY
 from .currdsl import Currency
 from .types import *
 from .exceptions import *
+
+try:
+    from data.currates_conf import CURRENCIES_MAPPING
+except ModuleNotFoundError:
+    # for tests
+    from examples.currates_conf import CURRENCIES_MAPPING
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'update_volatile_rates_async_loop', 'convert']
 
