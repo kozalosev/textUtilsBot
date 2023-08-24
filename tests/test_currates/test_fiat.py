@@ -34,6 +34,10 @@ def test_convert(tmp_path: Path, requests_mock):
     assert f"{res:.2f}" == "769.30"
     assert to_curr == "RUB"
 
+    res, to_curr = currates.convert("EUR", None, 9.85, lang_code="ru")
+    assert f"{res:.2f}" == "769.30"
+    assert to_curr == "RUB"
+
     res, to_curr = currates.convert("¥", "RUB", 9.85, lang_code="zh")
     assert f"{res:.2f}" == "105.63"
     assert to_curr == "RUB"

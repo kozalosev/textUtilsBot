@@ -12,9 +12,10 @@ import requests
 import random
 import asyncio
 from functools import reduce
-from typing import List, Iterable
+from typing import List, Iterable, Optional
 
 from data.currates_conf import CURRENCIES_MAPPING
+from .localcurr import LOCALE_TO_CURRENCY
 from .currdsl import Currency
 from .types import *
 from .exceptions import *
@@ -107,17 +108,23 @@ async def update_volatile_rates_async_loop(src: Iterable[DataSource], period_in_
         await asyncio.sleep(run_in_time.total_seconds())
 
 
-def convert(from_curr: str, to_curr: str, val: float, lang_code: str) -> (float, str):
+def convert(from_curr: str, to_curr: Optional[str], val: float, lang_code: str) -> (float, str):
     """
     Converts a value from one currency into another
 
     :param from_curr: source currency
-    :param to_curr: destination currency
+    :param to_curr: destination currency (if None, will be inferred from a 'lang_code')
     :param val: numeric value
     :param lang_code: used for conversion '¥' into either 'yen' or 'yuan'
     :return: converted numeric value and currency name in the right declension
     :raises UnsupportedCurrency: if one or both of the currencies isn't present in our data
+    :raises UnknownLanguageCode: if 'to_curr' is None and cannot be inferred from a 'lang_code'
     """
+    if not to_curr:
+        try:
+            to_curr = LOCALE_TO_CURRENCY[lang_code.upper()]
+        except KeyError:
+            raise UnknownLanguageCode(lang_code)
     from_curr = _ensure_not_symbol_or_word(from_curr, lang_code)
     to_curr = _ensure_not_symbol_or_word(to_curr, lang_code)
     result = _get_coefficient_for(from_curr.code, to_curr.code) * val

@@ -110,8 +110,10 @@ class Currency(CurrABC):
 
         if self._matched_words:
             return self._matched_words.resolve_declension(num)
-        else:
+        elif self._s:
             return self._s
+        else:
+            return self._code
 
     @property
     def code(self) -> str:
