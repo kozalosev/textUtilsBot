@@ -49,26 +49,26 @@ class TextProcessorsLoader:
     the 'TextProcessor' class from either a module or all modules in some
     package.
     """
-    all_processors = None          # type: Iterable[Type[TextProcessor]]
+    all_processors = None          # type: FrozenSet[Type[TextProcessor]]
     exclusive_processors = None    # type: Iterable[Type[TextProcessor]]
     simple_processors = None       # type: Iterable[Type[TextProcessor]]
 
     def __init__(self, module_or_package):
         impls = set(get_implementations(TextProcessor, module_or_package))
-        self.all_processors = set(impls)
+        self.all_processors = frozenset(impls)
         self.exclusive_processors = {x for x in impls if x.is_exclusive}
         self.simple_processors = {x for x in impls if x not in self.exclusive_processors}
 
-    def match_exclusive_processors(self, query: str) -> Iterable[TextProcessor]:
+    def match_exclusive_processors(self, query: str, lang_code: str = "") -> Iterable[TextProcessor]:
         """
         Iterate over the list of exclusive processors. Returns the list of
         instances of all processors which can process the query.
         """
-        return [x() for x in self.exclusive_processors if x.can_process(query)]
+        return [x() for x in self.exclusive_processors if x.can_process(query, lang_code)]
 
-    def match_simple_processors(self, query: str) -> Iterable[TextProcessor]:
+    def match_simple_processors(self, query: str, lang_code: str = "") -> Iterable[TextProcessor]:
         """
         Iterate over the list of non-exclusive processors. Returns the list of
         instances of all processors which can process the query.
         """
-        return [x() for x in self.simple_processors if x.can_process(query)]
+        return [x() for x in self.simple_processors if x.can_process(query, lang_code)]

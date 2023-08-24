@@ -131,6 +131,19 @@ def convert(from_curr: str, to_curr: Optional[str], val: float, lang_code: str) 
     return result, to_curr.resolve_declension(result)
 
 
+def currency_exists(curr: Optional[str], lang_code: str) -> bool:
+    """:returns: True if a specified currency is present in the database."""
+    if len(__db) == 0:
+        _logger.warning("Currencies disappeared somewhere...")
+        update_rates(__src_cache)
+
+    try:
+        curr = _ensure_not_symbol_or_word(curr or "", lang_code)
+    except UnsupportedCurrency | UnknownLanguageCode:
+        return False
+    return curr and curr.code.upper() in __db
+
+
 def _fetch_rates(src: DataSource) -> ExchangeRates:
     resp = requests.get(src.url, headers=src.headers)
     if resp.status_code != 200:

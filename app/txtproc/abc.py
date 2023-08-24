@@ -55,7 +55,7 @@ class TextProcessor(ABC):
 
     @classmethod
     @abstractmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         """Return True if the processor can handle the query."""
         pass
 
@@ -154,7 +154,7 @@ class PrefixedTextProcessor(TextProcessor, ABC):
         return query[len(prefix):].lstrip()
 
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return any(query.startswith(p) and cls.text_filter(cls._prepare(query, p)) for p in cls.get_prefixes())
 
     def process(self, query: str, lang_code: str = "") -> str:
@@ -174,7 +174,7 @@ class Reversible:
 class Universal:
     """Mix-in class that's used for processors that can handle any non-empty text."""
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return len(query) > 0
 
 

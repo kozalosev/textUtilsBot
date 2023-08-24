@@ -30,7 +30,7 @@ class Calculator(TextProcessor):
     _logger = logging.getLogger(__name__)
 
     @classmethod
-    def can_process(cls, query: str) -> bool:
+    def can_process(cls, query: str, lang_code: str = "") -> bool:
         return bool(_subst_re.search(query))
 
     def process(self, query: str, lang_code: str = "") -> str:

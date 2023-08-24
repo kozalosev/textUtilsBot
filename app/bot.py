@@ -78,12 +78,12 @@ def inline_request_handler(request: InlineQuery) -> None:
         add_article(localized_transformer_name, processed_str, description, parse_mode,
                     transformer.snake_case_name, **kwargs)
 
-    exclusive_processors = text_processors.match_exclusive_processors(request.query)
+    exclusive_processors = text_processors.match_exclusive_processors(request.query, lang_code)
     if exclusive_processors:
         for processor in exclusive_processors:
             transform_query(processor)
     else:
-        processors = text_processors.match_simple_processors(request.query)
+        processors = text_processors.match_simple_processors(request.query, lang_code)
         reversible_processors = [x for x in processors if x.is_reversible]
         non_reversible_processors = [x for x in processors if not x.is_reversible]
 
