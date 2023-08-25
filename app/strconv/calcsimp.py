@@ -30,7 +30,4 @@ class SingleExpressionCalculator(TextProcessor):
             (to_curr is None or currates.currency_exists(to_curr, lang_code))
 
     def process(self, query: str, lang_code: str = "") -> str:
-        expr = _subst_re.search(query).group("expr")
-        if not expr:
-            query = "1 " + query
         return self._calc.process("{{" + query + "}}", lang_code)

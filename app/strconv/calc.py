@@ -6,7 +6,7 @@ from io import StringIO
 from txtproc.abc import TextProcessor
 from . import currates
 
-_subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?) *?"
+_subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?)? *?"
                        r"((?P<from_curr>[A-Za-zа-я.]{3,}|[$€₽£¥]) *?"
                        r"(to|>|в)? *?"
                        r"(?P<to_curr>[A-Za-zа-я.]{3,}|[$€₽£¥])?)?? *?}}")
@@ -52,7 +52,10 @@ class Calculator(TextProcessor):
             sb.write(query[pos:])
             return sb.getvalue()
         sb.write(query[pos:match.start()])
-        expr = match.group("expr").strip().replace(",", ".")
+        expr = match.group("expr")
+        if not expr:
+            expr = "1"
+        expr = expr.strip().replace(",", ".")
         val = _eval_func(expr)
         if not isinstance(val, (int, float)):
             self._logger.warning(f"'{val}' is not a number for some reason. The query was '{query}', expr: '{expr}'")

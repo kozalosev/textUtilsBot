@@ -126,5 +126,10 @@ if __name__ == '__main__':
         webhook_future = bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}/")
         loop.run_until_complete(webhook_future)
         app = bot.create_webhook_app(f"/{NAME}/", loop)
-        os.umask(0o137)    # rw-r----- for the unix socket
-        web.run_app(app, path=UNIX_SOCKET, loop=loop)
+        if SOCKET_TYPE == 'TCP':
+            web.run_app(app, host=APP_HOST, port=APP_PORT, loop=loop)
+        elif SOCKET_TYPE == 'UNIX':
+            os.umask(0o137)    # rw-r----- for the unix socket
+            web.run_app(app, path=UNIX_SOCKET, loop=loop)
+        else:
+            raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")

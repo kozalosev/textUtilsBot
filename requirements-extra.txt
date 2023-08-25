@@ -1,1 +1,1 @@
-numexpr==2.8.4
+numexpr==2.8.5

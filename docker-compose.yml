@@ -1,14 +1,14 @@
-version: "3"
+version: "3.7"
 services:
   textUtilsBot:
     build: .
     image: kozalo/textutilsbot
-    container_name: textutilsbot
-    hostname: testUtilsBot
+    container_name: textUtilsBot
     working_dir: /home/textUtilsBot
-    restart: always
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8010:8080"
     volumes:
     - "./app/data:/home/textUtilsBot/app/data"
     - "/tmp:/tmp"
