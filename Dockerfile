@@ -14,7 +14,7 @@ COPY requirements.txt requirements-extra.txt ./
 COPY --from=builder /root/wheels ./wheels
 
 RUN apk update && \
-    apk add --no-cache git
+    apk add --no-cache git libstdc++
 
 RUN pip install -r requirements.txt
 RUN pip install --no-index --find-links=./wheels -r requirements-extra.txt \
