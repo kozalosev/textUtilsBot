@@ -7,10 +7,9 @@ These text processors work only for URL addresses that start with "http://" or "
 import re
 from abc import ABC
 from typing import Collection
-from urllib.parse import quote, unquote, urlparse, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlunparse, parse_qs, ParseResult
 
 from txtproc.abc import PrefixedTextProcessor, Reversible
-
 
 _re_url_encoded_char = re.compile("%[0-9]{2}")
 
@@ -79,3 +78,55 @@ class URLDecoder(URLPrefixedTextProcessor):
     def _process_netloc(domains: str) -> str:
         decoded_domains = [domain.encode('utf-8').decode('idna') for domain in domains.split('.')]
         return '.'.join(decoded_domains)
+
+
+class URLCleaner(URLPrefixedTextProcessor):
+    def transform(self, text: str) -> str:
+        url = urlparse(text)
+        url = self._get_rid_of_utm_labels(url)
+        url = self._get_rid_of_text_highlighting(url)
+        return urlunparse(url)
+
+    @classmethod
+    def text_filter(cls, text: str) -> bool:
+        return any(x in text for x in ("utm_", "si", "#:~:text="))
+
+    @staticmethod
+    def _get_rid_of_utm_labels(url: ParseResult) -> ParseResult:
+        query = [f"{k}={v}" for k, v in parse_qs(url.query).items() if not (k.startswith("utm_") or k == "si")]
+        return url._replace(query='&'.join(query))
+
+    @staticmethod
+    def _get_rid_of_text_highlighting(url: ParseResult) -> ParseResult:
+        if url.fragment.startswith(":~:text="):
+            return url._replace(fragment="")
+        else:
+            return url
+
+
+class InstaFix(URLPrefixedTextProcessor):
+    def transform(self, text: str) -> str:
+        url = urlparse(text)
+        url = self._get_rid_of_igshid(url)
+        url = self._add_dd(url)
+        return urlunparse(url)
+
+    @classmethod
+    def text_filter(cls, text: str) -> bool:
+        return any(x in text for x in ("instagram.com", "igshid"))
+
+    @staticmethod
+    def _get_rid_of_igshid(url: ParseResult) -> ParseResult:
+        query = parse_qs(url.query)
+        del query['igshid']
+        query = [f"{k}={v}" for k, v in query.items()]
+        return url._replace(query='&'.join(query))
+
+    @staticmethod
+    def _add_dd(url: ParseResult) -> ParseResult:
+        domain = url.netloc
+        if domain.startswith("www."):
+            domain = domain[4:]
+        if not domain.startswith("dd"):
+            domain = "dd" + domain
+        return url._replace(netloc=domain)
