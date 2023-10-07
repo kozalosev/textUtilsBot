@@ -57,8 +57,6 @@ class Calculator(TextProcessor):
             expr = "1"
         expr = expr.strip().replace(",", ".")
         val = _eval_func(expr)
-        if not isinstance(val, (int, float)):
-            self._logger.warning(f"'{val}' is not a number for some reason. The query was '{query}', expr: '{expr}'")
         from_curr = match.group("from_curr")
         to_curr = match.group("to_curr")
         if from_curr:
