@@ -118,7 +118,8 @@ class InstaFix(URLPrefixedTextProcessor):
     @staticmethod
     def _get_rid_of_igshid(url: ParseResult) -> ParseResult:
         query = parse_qs(url.query)
-        del query['igshid']
+        if 'igshid' in query:
+            del query['igshid']
         query = [f"{k}={v}" for k, v in query.items()]
         return url._replace(query='&'.join(query))
 

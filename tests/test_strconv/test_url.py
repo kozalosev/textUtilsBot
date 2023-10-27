@@ -52,14 +52,17 @@ class TestURLCleaner:
 
 
 class TestInstaFix:
-    reels_url = "https://www.instagram.com/reel/CvkEuXdNKHC/?igshid=NTc4MTIwNjQ2YQ=="
+    reels_urls = [
+        "https://www.instagram.com/reel/CvkEuXdNKHC/?igshid=NTc4MTIwNjQ2YQ==",
+        "https://www.instagram.com/reel/CvkEuXdNKHC/",
+    ]
     result_url = "https://ddinstagram.com/reel/CvkEuXdNKHC/"
 
     instafix = InstaFix()
 
     def test_can_process(self):
-        assert self.instafix.can_process(self.reels_url)
+        assert all(self.instafix.can_process(u) for u in self.reels_urls)
         assert not self.instafix.can_process("https://test.domain/")
 
     def test_process(self):
-        assert self.instafix.process(self.reels_url) == self.result_url
+        assert all(self.instafix.process(u) == self.result_url for u in self.reels_urls)
