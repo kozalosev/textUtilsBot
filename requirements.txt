@@ -1,5 +1,5 @@
 git+https://github.com/kozalosev/aiotg@master-patched#egg=aiotg
-aiohttp==3.8.5
+aiohttp==3.9.0
 klocmod==0.3.0
 requests==2.31.0
 prometheus-client==0.16.0
