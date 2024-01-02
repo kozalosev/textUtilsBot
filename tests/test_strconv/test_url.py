@@ -49,6 +49,8 @@ class TestURLCleaner:
                == "https://test.domain/"
         assert self.cleaner.process("https://qwerty:123456@test.domain/?utm_id=utm&si=123456") \
                == "https://qwerty:123456@test.domain/"
+        assert self.cleaner.process("https://market.ru/product?sku=102497938870&id=12345&id=67890&utm_medium=sharing") \
+               == "https://market.ru/product?sku=102497938870&id=12345&id=67890"
 
 
 class TestInstaFix:
