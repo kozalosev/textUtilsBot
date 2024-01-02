@@ -63,6 +63,7 @@ class TestInstaFix:
     def test_can_process(self):
         assert all(self.instafix.can_process(u) for u in self.reels_urls)
         assert not self.instafix.can_process("https://test.domain/")
+        assert not self.instafix.can_process("https://scontent-ams2-1.cdninstagram.com/foobar")
 
     def test_process(self):
         assert all(self.instafix.process(u) == self.result_url for u in self.reels_urls)

@@ -113,15 +113,11 @@ class InstaFix(URLPrefixedTextProcessor):
 
     @classmethod
     def text_filter(cls, text: str) -> bool:
-        return any(x in text for x in ("instagram.com", "igshid"))
+        return "instagram.com" in text and "cdninstagram.com" not in text
 
     @staticmethod
     def _get_rid_of_igshid(url: ParseResult) -> ParseResult:
-        query = parse_qs(url.query)
-        if 'igshid' in query:
-            del query['igshid']
-        query = [f"{k}={v}" for k, v in query.items()]
-        return url._replace(query='&'.join(query))
+        return url._replace(query="")
 
     @staticmethod
     def _add_dd(url: ParseResult) -> ParseResult:
