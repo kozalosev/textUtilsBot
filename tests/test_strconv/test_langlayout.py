@@ -2,8 +2,8 @@ from strconv.langlayout import LanguageLayoutSwitcher
 
 
 class TestLayoutSwitcher:
-    en = "J,kf;fkcz c hfcrkflrjq b ,erdjq @`@"
-    ru = "Облажался с раскладкой и буквой \"ё\""
+    en = "Z j,kf;fkcz c hfcrkflrjq b ,erdjq @`@"
+    ru = "Я облажался с раскладкой и буквой \"ё\""
 
     switcher = LanguageLayoutSwitcher()
 
