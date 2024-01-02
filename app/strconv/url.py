@@ -91,9 +91,9 @@ class URLCleaner(URLPrefixedTextProcessor):
     def text_filter(cls, text: str) -> bool:
         return any(x in text for x in ("utm_", "si", "#:~:text="))
 
-    @staticmethod
-    def _get_rid_of_utm_labels(url: ParseResult) -> ParseResult:
-        query = [f"{k}={v}" for k, v in parse_qs(url.query).items() if not (k.startswith("utm_") or k == "si")]
+    @classmethod
+    def _get_rid_of_utm_labels(cls, url: ParseResult) -> ParseResult:
+        query = [cls.__flatten_qs(k, v) for k, v in parse_qs(url.query).items() if cls.__filter_qs(k)]
         return url._replace(query='&'.join(query))
 
     @staticmethod
@@ -102,6 +102,14 @@ class URLCleaner(URLPrefixedTextProcessor):
             return url._replace(fragment="")
         else:
             return url
+
+    @staticmethod
+    def __flatten_qs(key: str, values: list[str]) -> str:
+        return '&'.join(f"{key}={v}" for v in values)
+
+    @staticmethod
+    def __filter_qs(key: str) -> bool:
+        return not (key.startswith("utm_") or key == "si")
 
 
 class InstaFix(URLPrefixedTextProcessor):
@@ -113,15 +121,11 @@ class InstaFix(URLPrefixedTextProcessor):
 
     @classmethod
     def text_filter(cls, text: str) -> bool:
-        return any(x in text for x in ("instagram.com", "igshid"))
+        return "instagram.com" in text and "cdninstagram.com" not in text
 
     @staticmethod
     def _get_rid_of_igshid(url: ParseResult) -> ParseResult:
-        query = parse_qs(url.query)
-        if 'igshid' in query:
-            del query['igshid']
-        query = [f"{k}={v}" for k, v in query.items()]
-        return url._replace(query='&'.join(query))
+        return url._replace(query="")
 
     @staticmethod
     def _add_dd(url: ParseResult) -> ParseResult:

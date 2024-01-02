@@ -49,6 +49,8 @@ class TestURLCleaner:
                == "https://test.domain/"
         assert self.cleaner.process("https://qwerty:123456@test.domain/?utm_id=utm&si=123456") \
                == "https://qwerty:123456@test.domain/"
+        assert self.cleaner.process("https://market.ru/product?sku=102497938870&id=12345&id=67890&utm_medium=sharing") \
+               == "https://market.ru/product?sku=102497938870&id=12345&id=67890"
 
 
 class TestInstaFix:
@@ -63,6 +65,7 @@ class TestInstaFix:
     def test_can_process(self):
         assert all(self.instafix.can_process(u) for u in self.reels_urls)
         assert not self.instafix.can_process("https://test.domain/")
+        assert not self.instafix.can_process("https://scontent-ams2-1.cdninstagram.com/foobar")
 
     def test_process(self):
         assert all(self.instafix.process(u) == self.result_url for u in self.reels_urls)
