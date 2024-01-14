@@ -3,3 +3,6 @@ aiohttp==3.9.0
 klocmod==0.3.0
 requests==2.31.0
 prometheus-client==0.16.0
+grpcio-tools==1.60.0
+cachetools==5.3.2
+asyncache==0.3.1

@@ -8,6 +8,7 @@ from klocmod import LocalizationsContainer
 
 import msgdb
 import strconv
+import usrsrvc
 from strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
 from txtproc import TextProcessorsLoader, TextProcessor, metrics
 from txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
@@ -21,6 +22,7 @@ DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file("app/localizations.ini")
+user_service_client = usrsrvc.Client(GRPC_ADDR_USER_SERVICE)
 
 text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)
@@ -35,7 +37,9 @@ async_tasks = [
 @bot.command("/help")
 @bot.default
 async def start(chat: Chat, _) -> None:
-    lang = localizations.get_lang(chat.message['from'].get('language_code'))
+    user = chat.message['from']
+    lang_code = await user_service_client.get_lang_code(user['id'], user.get('language_code'))
+    lang = localizations.get_lang(lang_code)
     messages = collect_help_messages(text_processors.all_processors, lang)
     kb = InlineKeyboardBuilder()
     for row in divide_chunks(messages, 2):
@@ -46,8 +50,10 @@ async def start(chat: Chat, _) -> None:
 
 
 @bot.callback("help:")
-def help_callback(chat: Chat, query: CallbackQuery, _: str) -> None:
-    lang = localizations.get_lang(query.src['from'].get('language_code'))
+async def help_callback(chat: Chat, query: CallbackQuery, _: str) -> None:
+    user = query.src['from']
+    lang_code = await user_service_client.get_lang_code(user['id'], user.get('language_code'))
+    lang = localizations.get_lang(lang_code)
     proc_name = query.data[5:]
     localized_proc_name = lang[f"hint_{proc_name}"]
     src_msg = query.src['message']
@@ -64,10 +70,12 @@ def help_callback(chat: Chat, query: CallbackQuery, _: str) -> None:
 
 
 @bot.inline
-def inline_request_handler(request: InlineQuery) -> None:
+async def inline_request_handler(request: InlineQuery) -> None:
     results = InlineQueryResultsBuilder()
     add_article = get_articles_generator_for(results)
-    lang_code = request.sender.get('language_code')
+
+    user = request.sender
+    lang_code = await user_service_client.get_lang_code(user['id'], user.get('language_code'))
     lang = localizations.get_lang(lang_code)
 
     def transform_query(transformer: TextProcessor, **kwargs):
@@ -100,10 +108,12 @@ def inline_request_handler(request: InlineQuery) -> None:
 
 
 @bot.callback
-def decrypt(_, callback_query: CallbackQuery) -> None:
-    not_found_msg = localizations.get_phrase(callback_query.src['from'].get('language_code'), 'missing_original_text')
-    message = msgdb.select(callback_query.data) or not_found_msg
-    callback_query.answer(text=message, cache_time=DECRYPT_BUTTON_CACHE_TIME)
+async def decrypt(_, query: CallbackQuery) -> None:
+    user = query.src['from']
+    lang_code = await user_service_client.get_lang_code(user['id'], user.get('language_code'))
+    not_found_msg = localizations.get_phrase(lang_code, 'missing_original_text')
+    message = msgdb.select(query.data) or not_found_msg
+    query.answer(text=message, cache_time=DECRYPT_BUTTON_CACHE_TIME)
 
 
 @bot.chosen_inline_result_callback

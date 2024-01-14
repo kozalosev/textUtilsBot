@@ -24,4 +24,5 @@ RUN pip install --no-index --find-links=./wheels -r requirements-extra.txt \
 USER 33
 COPY app ./app
 
+ENV PYTHONPATH=${PYTHONPATH}:./app/usrsrvc
 CMD ["python", "app/bot.py"]

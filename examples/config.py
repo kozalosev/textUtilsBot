@@ -11,6 +11,10 @@ METRICS_PORT = 8000
 UNIX_SOCKET = "/tmp/textUtilsBot.sock"    # A Unix domain socket to communicate with that web server.
 SOCKET_TYPE = 'TCP'                       # TCP or UNIX
 
+GRPC_ADDR_USER_SERVICE = "user-service:8090"
+USER_SERVICE_CACHE_MAX_SIZE = 128
+USER_SERVICE_CACHE_TIME = 300
+
 # Set to 'False' for production use.
 # Besides the level of verbosity, determines whether polling or webhooks will be used.
 DEBUG = True
