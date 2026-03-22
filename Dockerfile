@@ -1,4 +1,4 @@
-FROM python:3.11-alpine as builder
+FROM python:3.14-alpine as builder
 
 RUN apk update && \
     apk add --no-cache git gcc g++ musl-dev
@@ -7,7 +7,7 @@ COPY requirements-extra.txt ./
 RUN pip wheel --wheel-dir=/root/wheels -r requirements-extra.txt
 
 
-FROM python:3.11-alpine
+FROM python:3.14-alpine
 WORKDIR /home/textUtilsBot
 
 COPY requirements.txt requirements-extra.txt ./
