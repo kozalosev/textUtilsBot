@@ -11,6 +11,9 @@ METRICS_PORT = 8000
 UNIX_SOCKET = "/tmp/textUtilsBot.sock"    # A Unix domain socket to communicate with that web server.
 SOCKET_TYPE = 'TCP'                       # TCP or UNIX
 
+# Use a proxy server to reach Telegram servers if you live in an authoritarian country
+PROXY = None    # e.g. "socks5://127.0.0.1:2080"
+
 # Set to 'False' for production use.
 # Besides the level of verbosity, determines whether polling or webhooks will be used.
 DEBUG = True

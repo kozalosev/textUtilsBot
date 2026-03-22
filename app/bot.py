@@ -3,6 +3,7 @@ import json
 import os
 import asyncio
 from aiohttp import web
+from aiohttp_socks import ProxyConnector
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery, ChosenInlineResult
 from klocmod import LocalizationsContainer
 
@@ -116,6 +117,12 @@ if __name__ == '__main__':
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+
+    if PROXY:
+        async def setup_connector():
+            bot._connector = ProxyConnector.from_url(PROXY)
+        loop.run_until_complete(setup_connector())
+
     tasks = [loop.create_task(t) for t in async_tasks]
     bot.on_cleanup(lambda: [t.cancel() for t in tasks])
 
