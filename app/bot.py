@@ -136,6 +136,8 @@ async def run() -> None:
                 raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")
             await site.start()
             await asyncio.Event().wait()
+    except asyncio.CancelledError:
+        bot.stop()
     finally:
         for t in tasks:
             t.cancel()
@@ -147,4 +149,7 @@ async def run() -> None:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
     metrics.serve(METRICS_PORT)
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        pass
