@@ -1,10 +1,12 @@
 .idea/
+.claude/
 .pytest_cache/
 __pycache__/
 venv/
 
 app/data/config.py
 app/data/currates_conf.py
+app/data/*.db*
 log.txt
 messages.db
 currates.db
