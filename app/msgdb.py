@@ -1,5 +1,6 @@
 """Simple wrapper over an sqlite3 database to store textual messages."""
 
+from pathlib import Path
 import sqlite3
 import logging
 from typing import *
@@ -10,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 
 def _open_db() -> sqlite3.Connection:
-    db = sqlite3.connect('app/data/messages.db')
+    db = sqlite3.connect(Path(__file__).parent / 'data' / 'messages.db')
     db.execute("CREATE TABLE IF NOT EXISTS Messages(message TEXT NOT NULL)")
     return db
 

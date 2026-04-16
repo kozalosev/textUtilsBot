@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+from pathlib import Path
 import asyncio
 from aiohttp import web
 from aiohttp_socks import ProxyConnector
@@ -20,7 +21,7 @@ from .queryutil import *
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
-localizations = LocalizationsContainer.from_file("app/localizations.ini")
+localizations = LocalizationsContainer.from_file(Path(__file__).parent / "localizations.ini")
 
 text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)

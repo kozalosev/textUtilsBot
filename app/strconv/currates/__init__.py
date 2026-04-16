@@ -8,6 +8,7 @@ It has a function to calculate the coefficient for any pair and convert a value 
 import dbm
 import datetime
 import logging
+from pathlib import Path
 import requests
 import random
 import asyncio
@@ -28,7 +29,7 @@ except ModuleNotFoundError:
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'update_volatile_rates_async_loop', 'convert']
 
-__db: Lazy = Lazy(lambda: dbm.open('app/data/currates.db', flag='c'))
+__db: Lazy = Lazy(lambda: dbm.open(Path(__file__).parent.parent.parent / 'data' / 'currates.db', flag='c'))
 # It's filled in by update_rates() and is used as a cache of sources to fetch data
 # in getter functions if the rates are missing for some reason.
 __src_cache: List[DataSource] = []
