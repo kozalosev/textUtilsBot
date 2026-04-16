@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
-from strconv import currates
-from strconv.calc import Calculator
+from app.strconv import currates
+from app.strconv.calc import Calculator
 
 from tests.test_currates.test_fiat import mock_source, mock_source_json
 

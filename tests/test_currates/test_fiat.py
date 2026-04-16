@@ -1,6 +1,6 @@
 import datetime
-from strconv import currates
-from strconv.currates.extractors import field, iso_date
+from app.strconv import currates
+from app.strconv.currates.extractors import field, iso_date
 from pathlib import Path
 
 mock_source = currates.DataSource('mock_source', 'http://localhost/fiat',

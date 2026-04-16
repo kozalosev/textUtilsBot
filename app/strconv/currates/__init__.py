@@ -18,10 +18,10 @@ from .localcurr import LOCALE_TO_CURRENCY
 from .currdsl import Currency
 from .types import *
 from .exceptions import *
-from utils import Lazy
+from ...utils import Lazy
 
 try:
-    from data.currates_conf import CURRENCIES_MAPPING
+    from ...data.currates_conf import CURRENCIES_MAPPING
 except ModuleNotFoundError:
     # for tests
     from examples.currates_conf import CURRENCIES_MAPPING

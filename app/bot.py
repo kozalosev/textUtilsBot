@@ -7,14 +7,14 @@ from aiohttp_socks import ProxyConnector
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery, ChosenInlineResult
 from klocmod import LocalizationsContainer
 
-import msgdb
-import strconv
-from strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
-from txtproc import TextProcessorsLoader, TextProcessor, metrics
-from txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
-from data.config import *
-from data.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
-from queryutil import *
+from . import msgdb
+from . import strconv
+from .strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
+from .txtproc import TextProcessorsLoader, TextProcessor, metrics
+from .txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
+from .data.config import *
+from .data.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
+from .queryutil import *
 
 
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds

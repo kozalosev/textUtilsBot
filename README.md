@@ -30,7 +30,7 @@ How to run the bot in debug mode from PyCharm
 ---------------------------------------------
 
 To run the bot in debug mode from PyCharm, add a new Python configuration:
-- Script path: `app/bot.py`
+- Module name: `app.bot`
 - Working directory: absolute path to the repo directory
 
 Also, you must copy the `examples/config.py` file into the `app/data` directory. After that, set your TOKEN. That's all!
@@ -151,7 +151,7 @@ import re
 # In fact, there is a shortcut for TextProcessor in the 'txtproc' module itself,
 # but it's mostly intended for the loading system. Later you'll understand why
 # you almost always should prefer the `abc` submodule.
-from txtproc.abc import TextProcessor
+from ..txtproc.abc import TextProcessor
 
 
 class BakaDetector(TextProcessor):
@@ -178,7 +178,7 @@ OK. Let's make the class a bit simpler by using the built-in mix-ins.
 
 ```python
 import re
-from txtproc.abc import *
+from ..txtproc.abc import *
 
 
 # Here we describe our text processor in one line.
@@ -205,7 +205,7 @@ codes and vice versa.
 # app/strconv/char2code.py
 
 from typing import *
-from txtproc.abc import *
+from ..txtproc.abc import *
 
 
 # The 'Encoder' class is just a shortcut for "Reversible, TextProcessor". 
@@ -285,7 +285,7 @@ Let's create files `test_baka.py` and `test_char2code.py` files inside the `test
 # tests/test_strconv/test_baka.py
 
 import pytest
-from strconv.baka import BakaDetector
+from app.strconv.baka import BakaDetector
 
 
 @pytest.fixture
@@ -310,7 +310,7 @@ def test_processor(processor):
 ```python
 # tests/test_strconv/test_baka.py
 
-from strconv.char2code import CharEncoder, CharDecoder
+from app.strconv.char2code import CharEncoder, CharDecoder
 
 
 def test_encoder():
@@ -324,24 +324,16 @@ def test_decoder():
     assert decoder.process("104 101 108 108 111 32 119 111 114 108 100") == "hello world"
 ```
 
-##### Run tests on Linux
+##### Run tests
 
 ```bash
-PYTHONPATH=app pytest
+pytest
 ```
 
-##### Run tests on Windows
+or
 
-Command Prompt:
-
-```cmd
-set PYTHONPATH=app && pytest
-```
-
-PowerShell:
-
-```powershell
-$env:PYTHONPATH='app'; pytest
+```bash
+uv run pytest
 ```
 
 All tests must finish successfully.

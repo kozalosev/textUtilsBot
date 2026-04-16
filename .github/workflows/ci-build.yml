@@ -6,8 +6,6 @@ jobs:
       matrix:
         version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: app
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"

@@ -2,7 +2,7 @@
 
 import string
 
-from txtproc.abc import TextProcessor, Universal
+from ..txtproc.abc import TextProcessor, Universal
 
 
 class LanguageLayoutSwitcher(Universal, TextProcessor):

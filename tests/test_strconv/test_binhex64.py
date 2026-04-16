@@ -1,5 +1,5 @@
-from strconv.util import split_every_n_characters
-from strconv.util.binhex64 import *
+from app.strconv.util import split_every_n_characters
+from app.strconv.util.binhex64 import *
 
 
 class TestSplitAtEachNthCharacter:

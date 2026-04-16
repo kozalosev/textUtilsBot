@@ -4,7 +4,7 @@ import sqlite3
 import logging
 from typing import *
 
-from utils import Lazy
+from .utils import Lazy
 
 _logger = logging.getLogger(__name__)
 

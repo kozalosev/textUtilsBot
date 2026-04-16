@@ -1,6 +1,6 @@
 import datetime
-from strconv import currates
-from strconv.currates.extractors import iso_date
+from app.strconv import currates
+from app.strconv.currates.extractors import iso_date
 from pathlib import Path
 
 from . import test_fiat
