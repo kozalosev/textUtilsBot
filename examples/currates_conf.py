@@ -1,6 +1,6 @@
-from ..strconv.currates.currdsl import Currency, InEnglish, InRussian
-from ..strconv.currates.types import DataSource
-from ..strconv.currates.extractors import field, iso_date, timestamp_date
+from app.strconv.currates.currdsl import Currency, InEnglish, InRussian
+from app.strconv.currates.types import DataSource
+from app.strconv.currates.extractors import field, iso_date, timestamp_date
 
 __EXCHANGE_RATE_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
 __COINMARKETCAP_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
