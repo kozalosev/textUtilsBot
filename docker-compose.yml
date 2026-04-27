@@ -1,16 +1,18 @@
-version: "3.7"
 services:
   textUtilsBot:
     build: .
     image: kozalo/textutilsbot
     container_name: textUtilsBot
     working_dir: /home/textUtilsBot
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
     expose:
       - "8080"
       - "8000"
     volumes:
-      - "./app/data:/home/textUtilsBot/app/data"
+      - "./app/config/currates_conf.py:/home/textUtilsBot/app/config/currates_conf.py"
       - "/tmp:/tmp"
     logging:
       driver: local

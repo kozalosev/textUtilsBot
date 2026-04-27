@@ -4,8 +4,7 @@
 __pycache__/
 venv/
 
-app/data/config.py
-app/data/currates_conf.py
+.env
 app/data/*.db*
 log.txt
 messages.db

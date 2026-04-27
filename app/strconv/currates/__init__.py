@@ -21,11 +21,7 @@ from .types import *
 from .exceptions import *
 from ...utils import Lazy
 
-try:
-    from ...data.currates_conf import CURRENCIES_MAPPING
-except ModuleNotFoundError:
-    # for tests
-    from examples.currates_conf import CURRENCIES_MAPPING
+from ...config.currates_conf import CURRENCIES_MAPPING
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'update_volatile_rates_async_loop', 'convert']
 
