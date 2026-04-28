@@ -33,7 +33,7 @@ To run the bot in debug mode from PyCharm, add a new Python configuration:
 - Module name: `app.bot`
 - Working directory: absolute path to the repo directory
 
-Also, you must copy the `examples/config.py` file into the `app/data` directory. After that, set your TOKEN. That's all!
+Also, you must create a `.env` file (copy from `.env.example`) and set your `TOKEN`. That's all!
 Click the run button!
 
 > Don't forget to enable VPN if Telegram is banned in your country!
@@ -48,8 +48,8 @@ and [Docker Compose](https://docs.docker.com/compose/install/) to be installed o
 to don't care about the version of the Python interpreter installed on your machine.
 
 The other way is to run the bot within a virtual environment. There is a special [initialization script](init.sh),
-that can help you on Linux. On Windows, you have to manually run *venv*, install all dependencies using *pip* and copy
-the *config.py* file from the [`examples/`](examples) directory into [`app/data/`](app/data). Note, however, that there
+that can help you on Linux. On Windows, you have to manually run *venv*, install all dependencies using *pip* and create
+a `.env` file (copy from `.env.example`) with the required values. Note, however, that there
 is only built-in support for Linux based servers for production use. But it's OK to utilize Windows machines for
 development and debugging.
 
@@ -59,7 +59,7 @@ development and debugging.
 1. Clone the repository.
 2. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
 3. Run the `./start-container.sh` script.
-4. Edit [app/data/config.py](app/data/config.py) according to your environment.
+4. Edit `.env` according to your environment.
 5. Run `./start-container.sh` again.
 
 
@@ -68,12 +68,27 @@ development and debugging.
 1. Clone the repository.
 2. `./init.sh`
 3. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
-4. Edit [app/data/config.py](app/data/config.py) according to your environment.
+4. Edit `.env` according to your environment.
 5. Run `./start.sh` using one of the following ways:
     - directly (`nohup ./start.sh &>/dev/null &`);
     - configure [supervisord](http://supervisord.org/) or **systemd** to do it for you (see
         [exemplary configuration files](examples));
     - configure any other service manager on your choice (but you have to write configuration by yourself).
+
+
+### Backups (Docker only)
+
+Automatic backups of `messages.db` to Scaleway Object Storage via [rclone](https://rclone.org/) are built into the
+image. To enable, mount your `rclone.conf` to `/config/rclone.conf` in the container and set `BACKUP_S3_BUCKET` in
+`.env`.
+
+| Variable | Default | Description |
+|---|---|---|
+| `BACKUP_S3_BUCKET` | *(required to enable)* | Target S3 bucket name |
+| `BACKUP_CRON` | `0 3 * * *` | Cron schedule |
+| `BACKUP_KEEP_DAYS` | `30` | Days to retain old backups |
+
+Backups are stored as `messages_YYYY-MM-DD_HH_MM_SS.db` in the bucket root.
 
 
 ### Common notes
