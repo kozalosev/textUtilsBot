@@ -13,6 +13,24 @@ services:
       - "8000"
     volumes:
       - "./app/config/currates_conf.py:/home/textUtilsBot/app/config/currates_conf.py"
+      - "./data:/home/textUtilsBot/app/data"
       - "/tmp:/tmp"
+    logging:
+      driver: local
+
+  textUtilsBot-backup:
+    build: ./backup
+    image: kozalo/textutilsbot-backup
+    container_name: textUtilsBot-backup
+    profiles:
+      - backup
+    environment:
+      - BACKUP_S3_BUCKET=kozalo-backup-textutilsbot
+      - BACKUP_CRON=0 3 * * *
+      - BACKUP_KEEP_DAYS=30
+    volumes:
+      - "./data:/data:ro"
+      - "./rclone.conf:/config/rclone.conf:ro"
+    restart: unless-stopped
     logging:
       driver: local
