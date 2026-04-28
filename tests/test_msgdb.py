@@ -1,4 +1,4 @@
-import msgdb
+from app import msgdb
 
 
 def test_database(tmpdir):

@@ -8,11 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All commands require `PYTHONPATH=app` to be set.
+Run all commands from the project root (no `PYTHONPATH` needed).
 
 ```bash
 # Run tests
-export PYTHONPATH=app
 pytest
 
 # Run a single test file
@@ -22,7 +21,7 @@ pytest tests/test_strconv/test_banner.py
 coverage run -m pytest && coverage report
 
 # Run the bot (debug/polling mode — set DEBUG=True in config.py)
-python app/bot.py
+python -m app.bot
 
 # Docker
 docker compose up -d --build
@@ -30,8 +29,8 @@ docker compose up -d --build
 
 **Windows PowerShell:**
 ```powershell
-$env:PYTHONPATH='app'; pytest
-$env:PYTHONPATH='app'; python app/bot.py
+pytest
+python -m app.bot
 ```
 
 ## Setup
@@ -96,6 +95,6 @@ The core design is a dynamic plugin system:
 
 ## CI/CD
 
-- `.github/workflows/ci-build.yml` — runs `pytest` on Python 3.10–3.14
+- `.github/workflows/ci-build.yml` — runs `pytest` on Python 3.11–3.14
 - `.github/workflows/publish.yml` — builds and pushes Docker image to `ghcr.io` on version tags (e.g., `v2.4.0`)
 - Docker base image: `python:3.14-alpine` (multistage build)

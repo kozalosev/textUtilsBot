@@ -1,5 +1,5 @@
 import pytest
-from strconv.typographer import TypographerConverter
+from app.strconv.typographer import TypographerConverter
 
 
 @pytest.fixture

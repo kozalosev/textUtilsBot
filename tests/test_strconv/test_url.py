@@ -1,4 +1,4 @@
-from strconv.url import URLEncoder, URLDecoder, URLCleaner, InstaFix
+from app.strconv.url import URLEncoder, URLDecoder, URLCleaner, InstaFix
 
 url = "http://сайт.рф/путь;параметр=значение?запрос1=значение1&запрос2=значение2#хэш"
 encoded_url = "http://xn--80aswg.xn--p1ai/%D0%BF%D1%83%D1%82%D1%8C;%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5?%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%811=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B51&%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%812=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B52#%D1%85%D1%8D%D1%88"

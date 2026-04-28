@@ -9,13 +9,11 @@ pip install setuptools wheel --upgrade
 pip install -r requirements.txt
 echo
 
-echo "Creating a configuration file..."
-cp examples/config.py app/data/
-sudo chgrp www-data app/data/config.py || echo "Group 'www-data' not found. Change the group of the 'app/data/config.py' file manually!"
-chmod o-r app/data/config.py
+echo "Creating environment file..."
+cp .env.example .env
 echo
 
-echo "Done. Don't forget to replace fake values in 'app/data/config.py' with your actual ones."
+echo "Done. Edit '.env' with your actual values before running the bot."
 echo "Use the '. venv/bin/activate' command to enable the virtual environment. Inside, type 'deactivate' to disable it."
 echo "The 'start.sh' script is a shortcut to enter the virtual environment and run the bot."
 echo

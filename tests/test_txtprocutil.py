@@ -1,4 +1,4 @@
-from txtprocutil import collect_help_messages, divide_chunks
+from app.txtprocutil import collect_help_messages, divide_chunks
 from tests.test_txtproc import simple_processors    # import the fixture
 from klocmod import LocalizationsContainer
 

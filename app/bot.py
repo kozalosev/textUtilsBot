@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 import json
 import os
+from pathlib import Path
 import asyncio
 from aiohttp import web
 from aiohttp_socks import ProxyConnector
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery, ChosenInlineResult
 from klocmod import LocalizationsContainer
 
-import msgdb
-import strconv
-from strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
-from txtproc import TextProcessorsLoader, TextProcessor, metrics
-from txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
-from data.config import *
-from data.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
-from queryutil import *
+from . import msgdb
+from . import strconv
+from .strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
+from .txtproc import TextProcessorsLoader, TextProcessor, metrics
+from .txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
+from .config import *
+from .config.currates_conf import EXCHANGE_RATE_SOURCES, UPDATE_VOLATILE_PERIOD_IN_HOURS
+from .queryutil import *
 
 
 DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
-logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
 bot = Bot(api_token=TOKEN, default_in_groups=True)
-localizations = LocalizationsContainer.from_file("app/localizations.ini")
+localizations = LocalizationsContainer.from_file(Path(__file__).parent / "localizations.ini")
 
 text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)
@@ -112,31 +112,45 @@ def chosen_inline_result_callback(chosen_result: ChosenInlineResult) -> None:
     metrics.inc(chosen_result.result_id)
 
 
-if __name__ == '__main__':
-    metrics.serve(METRICS_PORT)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
+async def run() -> None:
     if PROXY:
-        async def setup_connector():
-            bot._connector = ProxyConnector.from_url(PROXY)
-        loop.run_until_complete(setup_connector())
+        bot._connector = ProxyConnector.from_url(PROXY)
 
-    tasks = [loop.create_task(t) for t in async_tasks]
-    bot.on_cleanup(lambda: [t.cancel() for t in tasks])
+    tasks = [asyncio.create_task(t) for t in async_tasks]
+    runner = None
 
-    if DEBUG:
-        loop.run_until_complete(bot.delete_webhook())
-        bot.run(debug=True)
-    else:
-        webhook_future = bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}/")
-        loop.run_until_complete(webhook_future)
-        app = bot.create_webhook_app(f"/{NAME}/", loop)
-        if SOCKET_TYPE == 'TCP':
-            web.run_app(app, host=APP_HOST, port=APP_PORT, loop=loop)
-        elif SOCKET_TYPE == 'UNIX':
-            os.umask(0o137)    # rw-r----- for the unix socket
-            web.run_app(app, path=UNIX_SOCKET, loop=loop)
+    try:
+        if DEBUG:
+            await bot.delete_webhook()
+            await bot.loop()
         else:
-            raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")
+            await bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}/")
+            app = bot.create_webhook_app(f"/{NAME}/")
+            runner = web.AppRunner(app)
+            await runner.setup()
+            if SOCKET_TYPE == 'TCP':
+                site = web.TCPSite(runner, APP_HOST, APP_PORT)
+            elif SOCKET_TYPE == 'UNIX':
+                os.umask(0o137)    # rw-r----- for the unix socket
+                site = web.UnixSite(runner, UNIX_SOCKET)
+            else:
+                raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")
+            await site.start()
+            await asyncio.Event().wait()
+    except asyncio.CancelledError:
+        bot.stop()
+    finally:
+        for t in tasks:
+            t.cancel()
+        await bot.session.close()
+        if runner is not None:
+            await runner.cleanup()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
+    metrics.serve(METRICS_PORT)
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        pass

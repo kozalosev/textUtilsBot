@@ -9,7 +9,7 @@ from abc import ABC
 from typing import Collection
 from urllib.parse import quote, unquote, urlparse, urlunparse, parse_qs, ParseResult
 
-from txtproc.abc import PrefixedTextProcessor, Reversible
+from ..txtproc.abc import PrefixedTextProcessor, Reversible
 
 _re_url_encoded_char = re.compile("%[0-9]{2}")
 

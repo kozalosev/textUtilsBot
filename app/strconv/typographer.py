@@ -1,5 +1,5 @@
 import re
-from txtproc.abc import TextProcessor
+from ..txtproc.abc import TextProcessor
 
 
 class TypographerConverter(TextProcessor):

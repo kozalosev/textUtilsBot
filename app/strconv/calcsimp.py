@@ -2,7 +2,7 @@
 
 import re
 
-from txtproc.abc import TextProcessor
+from ..txtproc.abc import TextProcessor
 from . import currates
 from .calc import Calculator
 

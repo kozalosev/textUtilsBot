@@ -1,11 +1,11 @@
-from strconv.currates.currdsl import Currency, InEnglish, InRussian
-from strconv.currates.types import DataSource
-from strconv.currates.extractors import field, iso_date, timestamp_date
+from os import getenv as env
 
-__EXCHANGE_RATE_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
-__COINMARKETCAP_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXX"
+from ..strconv.currates.currdsl import Currency, InEnglish, InRussian
+from ..strconv.currates.types import DataSource
+from ..strconv.currates.extractors import field, iso_date, timestamp_date
 
-_COINMARKETCAP_LIMIT = 1200
+__EXCHANGE_RATE_API_KEY = env("EXCHANGE_RATE_API_KEY")
+__COINMARKETCAP_API_KEY = env("COINMARKETCAP_API_KEY")
 
 UPDATE_VOLATILE_PERIOD_IN_HOURS = 1
 
@@ -15,7 +15,7 @@ EXCHANGE_RATE_SOURCES = [
     DataSource('exchangerate-api.com', f"https://v6.exchangerate-api.com/v6/{__EXCHANGE_RATE_API_KEY}/latest/USD",
                field('result'), field('conversion_rates'), timestamp_date('time_last_update_unix')),
     DataSource('coinmarketcap.com',
-               f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit={_COINMARKETCAP_LIMIT}&convert=USD",
+               f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=500&convert=USD",
                status_checker=lambda json: json['status']['error_code'] == 0,
                rates_extractor=lambda json: {x['symbol']:(1/x['quote']['USD']['price']) for x in json['data']},
                date_extractor=iso_date('status.timestamp'),

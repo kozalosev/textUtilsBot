@@ -1,10 +1,10 @@
 import pytest
 from typing import *
 
-import strconv
-import strconv.binhex64 as binhex64
-import strconv.langlayout as langlayout
-from txtproc import TextProcessorsLoader, TextProcessor
+from app import strconv
+from app.strconv import binhex64
+from app.strconv import langlayout
+from app.txtproc import TextProcessorsLoader, TextProcessor
 
 
 @pytest.fixture

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Type, Union, Iterable, List, TypeVar, Collection, FrozenSet
 from klocmod import LanguageDictionary
 
-from txtproc import TextProcessor
+from .txtproc import TextProcessor
 
 T = TypeVar('T')
 

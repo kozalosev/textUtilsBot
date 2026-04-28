@@ -9,7 +9,7 @@ checking of ability to handle the query and actual processing.
 
 import string
 
-from txtproc.abc import Universal, Encoder, Decoder
+from ..txtproc.abc import Universal, Encoder, Decoder
 from .util.binhex64 import *
 
 

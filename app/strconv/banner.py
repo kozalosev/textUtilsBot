@@ -2,7 +2,7 @@
 
 from io import StringIO
 
-from txtproc.abc import Universal, HTML, TextProcessor
+from ..txtproc.abc import Universal, HTML, TextProcessor
 from .util import escape_html
 
 
