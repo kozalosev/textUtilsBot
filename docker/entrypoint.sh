@@ -5,4 +5,4 @@ if [ -n "${BACKUP_S3_BUCKET}" ] && [ -f /config/rclone.conf ]; then
     crond
 fi
 
-exec su-exec 33 python app/bot.py
+exec su-exec 33 python -m app.bot
