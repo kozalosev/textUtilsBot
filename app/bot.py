@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 import asyncio
 from aiohttp import web
-from aiohttp_socks import ProxyConnector
 from aiotg import Bot, Chat, InlineQuery, CallbackQuery, ChosenInlineResult
 from klocmod import LocalizationsContainer
 
@@ -114,6 +113,7 @@ def chosen_inline_result_callback(chosen_result: ChosenInlineResult) -> None:
 
 async def run() -> None:
     if PROXY:
+        from aiohttp_socks import ProxyConnector
         bot._connector = ProxyConnector.from_url(PROXY)
 
     tasks = [asyncio.create_task(t) for t in async_tasks]
@@ -122,20 +122,27 @@ async def run() -> None:
     try:
         if DEBUG:
             await bot.delete_webhook()
-            await bot.loop()
+            app = web.Application()
         else:
             await bot.set_webhook(f"https://{HOST}:{SERVER_PORT}/{NAME}/")
             app = bot.create_webhook_app(f"/{NAME}/")
-            runner = web.AppRunner(app)
-            await runner.setup()
-            if SOCKET_TYPE == 'TCP':
-                site = web.TCPSite(runner, APP_HOST, APP_PORT)
-            elif SOCKET_TYPE == 'UNIX':
-                os.umask(0o137)    # rw-r----- for the unix socket
-                site = web.UnixSite(runner, UNIX_SOCKET)
-            else:
-                raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")
-            await site.start()
+
+        app.router.add_get("/metrics", metrics.handler)
+        runner = web.AppRunner(app)
+        await runner.setup()
+
+        if SOCKET_TYPE == 'TCP':
+            site = web.TCPSite(runner, APP_HOST, APP_PORT)
+        elif SOCKET_TYPE == 'UNIX':
+            os.umask(0o137)    # rw-r----- for the unix socket
+            site = web.UnixSite(runner, UNIX_SOCKET)
+        else:
+            raise ValueError("The value of the SOCKET_TYPE environment variable is invalid!")
+        await site.start()
+
+        if DEBUG:
+            await bot.loop()
+        else:
             await asyncio.Event().wait()
     except asyncio.CancelledError:
         bot.stop()
@@ -149,7 +156,6 @@ async def run() -> None:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
-    metrics.serve(METRICS_PORT)
     try:
         asyncio.run(run())
     except KeyboardInterrupt:

@@ -1,7 +1,8 @@
 """Module for management of Prometheus metrics"""
 
 from typing import Dict
-from prometheus_client import start_http_server, Counter
+from aiohttp.web import Request, Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter
 
 from .abc import TextProcessor
 
@@ -24,6 +25,5 @@ def inc(query_id: str) -> None:
     _counters[proc_name].inc()
 
 
-def serve(port: int) -> None:
-    """Runs a WSGI server for metrics"""
-    start_http_server(port)
+async def handler(_: Request) -> Response:
+    return Response(body=generate_latest(), headers={"Content-Type": CONTENT_TYPE_LATEST})

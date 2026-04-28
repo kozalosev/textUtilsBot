@@ -7,7 +7,7 @@ from ..strconv.currates.extractors import field, iso_date, timestamp_date
 __EXCHANGE_RATE_API_KEY = env("EXCHANGE_RATE_API_KEY")
 __COINMARKETCAP_API_KEY = env("COINMARKETCAP_API_KEY")
 
-UPDATE_VOLATILE_PERIOD_IN_HOURS = 1
+UPDATE_VOLATILE_PERIOD_IN_HOURS = env("UPDATE_VOLATILE_PERIOD_IN_HOURS")
 
 EXCHANGE_RATE_SOURCES = [
     DataSource('api.exchangerate.host', "https://api.exchangerate.host/latest?base=USD",
