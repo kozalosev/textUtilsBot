@@ -95,6 +95,6 @@ The core design is a dynamic plugin system:
 
 ## CI/CD
 
-- `.github/workflows/ci-build.yml` — runs `pytest` on Python 3.10–3.14
+- `.github/workflows/ci-build.yml` — runs `pytest` on Python 3.11–3.14
 - `.github/workflows/publish.yml` — builds and pushes Docker image to `ghcr.io` on version tags (e.g., `v2.4.0`)
 - Docker base image: `python:3.14-alpine` (multistage build)
