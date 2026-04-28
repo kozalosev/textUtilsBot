@@ -53,7 +53,7 @@ def update_rates(src: Iterable[DataSource]) -> None:
         _logger.info("Filling the cache of currency rates sources...")
         __src_cache = src
 
-    today = datetime.datetime.utcnow().date()
+    today = datetime.datetime.now(datetime.UTC).date()
     volatile = all(x.volatile for x in src)
     if not volatile and 'date' in __db and __db['date'].decode() == str(today):
         _logger.info("The cache already has the actual currency exchange rates. Skipping...")

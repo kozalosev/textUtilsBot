@@ -11,7 +11,7 @@ mock_cny = 6.826292
 mock_source_json = f"""{{
     "success": true,
     "base": "USD",
-    "date": "{datetime.datetime.utcnow().date().isoformat()}",
+    "date": "{datetime.datetime.now(datetime.UTC).date().isoformat()}",
     "rates": {{
         "USD": 1,
         "RUB": {mock_rub},
