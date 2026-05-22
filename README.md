@@ -16,7 +16,7 @@ send me a pull request.
 Requirements
 ------------
 
-- [Python 3.10+](https://www.python.org) (3.7+ until [v2.2.0](https://github.com/kozalosev/textUtilsBot/releases/tag/v2.2.0))
+- [Python 3.11+](https://www.python.org) (3.7+ until [v2.2.0](https://github.com/kozalosev/textUtilsBot/releases/tag/v2.2.0))
 - [aiotg](https://pypi.python.org/pypi/aiotg)
 - [aiohttp](https://pypi.python.org/pypi/aiohttp)
 
@@ -30,10 +30,10 @@ How to run the bot in debug mode from PyCharm
 ---------------------------------------------
 
 To run the bot in debug mode from PyCharm, add a new Python configuration:
-- Script path: `app/bot.py`
+- Module name: `app.bot`
 - Working directory: absolute path to the repo directory
 
-Also, you must copy the `examples/config.py` file into the `app/data` directory. After that, set your TOKEN. That's all!
+Also, you must create a `.env` file (copy from `.env.example`) and set your `TOKEN`. That's all!
 Click the run button!
 
 > Don't forget to enable VPN if Telegram is banned in your country!
@@ -48,8 +48,8 @@ and [Docker Compose](https://docs.docker.com/compose/install/) to be installed o
 to don't care about the version of the Python interpreter installed on your machine.
 
 The other way is to run the bot within a virtual environment. There is a special [initialization script](init.sh),
-that can help you on Linux. On Windows, you have to manually run *venv*, install all dependencies using *pip* and copy
-the *config.py* file from the [`examples/`](examples) directory into [`app/data/`](app/data). Note, however, that there
+that can help you on Linux. On Windows, you have to manually run *venv*, install all dependencies using *pip* and create
+a `.env` file (copy from `.env.example`) with the required values. Note, however, that there
 is only built-in support for Linux based servers for production use. But it's OK to utilize Windows machines for
 development and debugging.
 
@@ -59,7 +59,7 @@ development and debugging.
 1. Clone the repository.
 2. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
 3. Run the `./start-container.sh` script.
-4. Edit [app/data/config.py](app/data/config.py) according to your environment.
+4. Edit `.env` according to your environment.
 5. Run `./start-container.sh` again.
 
 
@@ -68,12 +68,27 @@ development and debugging.
 1. Clone the repository.
 2. `./init.sh`
 3. Configure [nginx](http://nginx.org) or any other front-end web server (keep reading for more information).
-4. Edit [app/data/config.py](app/data/config.py) according to your environment.
+4. Edit `.env` according to your environment.
 5. Run `./start.sh` using one of the following ways:
     - directly (`nohup ./start.sh &>/dev/null &`);
     - configure [supervisord](http://supervisord.org/) or **systemd** to do it for you (see
         [exemplary configuration files](examples));
     - configure any other service manager on your choice (but you have to write configuration by yourself).
+
+
+### Backups (Docker only)
+
+Automatic backups of `messages.db` to Scaleway Object Storage via [rclone](https://rclone.org/) are built into the
+image. To enable, mount your `rclone.conf` to `/config/rclone.conf` in the container and set `BACKUP_S3_BUCKET` in
+`.env`.
+
+| Variable | Default | Description |
+|---|---|---|
+| `BACKUP_S3_BUCKET` | *(required to enable)* | Target S3 bucket name |
+| `BACKUP_CRON` | `0 3 * * *` | Cron schedule |
+| `BACKUP_KEEP_DAYS` | `30` | Days to retain old backups |
+
+Backups are stored as `messages_YYYY-MM-DD_HH_MM_SS.db` in the bucket root.
 
 
 ### Common notes
@@ -151,7 +166,7 @@ import re
 # In fact, there is a shortcut for TextProcessor in the 'txtproc' module itself,
 # but it's mostly intended for the loading system. Later you'll understand why
 # you almost always should prefer the `abc` submodule.
-from txtproc.abc import TextProcessor
+from ..txtproc.abc import TextProcessor
 
 
 class BakaDetector(TextProcessor):
@@ -178,7 +193,7 @@ OK. Let's make the class a bit simpler by using the built-in mix-ins.
 
 ```python
 import re
-from txtproc.abc import *
+from ..txtproc.abc import *
 
 
 # Here we describe our text processor in one line.
@@ -205,7 +220,7 @@ codes and vice versa.
 # app/strconv/char2code.py
 
 from typing import *
-from txtproc.abc import *
+from ..txtproc.abc import *
 
 
 # The 'Encoder' class is just a shortcut for "Reversible, TextProcessor". 
@@ -285,7 +300,7 @@ Let's create files `test_baka.py` and `test_char2code.py` files inside the `test
 # tests/test_strconv/test_baka.py
 
 import pytest
-from strconv.baka import BakaDetector
+from app.strconv.baka import BakaDetector
 
 
 @pytest.fixture
@@ -310,7 +325,7 @@ def test_processor(processor):
 ```python
 # tests/test_strconv/test_baka.py
 
-from strconv.char2code import CharEncoder, CharDecoder
+from app.strconv.char2code import CharEncoder, CharDecoder
 
 
 def test_encoder():
@@ -324,24 +339,16 @@ def test_decoder():
     assert decoder.process("104 101 108 108 111 32 119 111 114 108 100") == "hello world"
 ```
 
-##### Run tests on Linux
+##### Run tests
 
 ```bash
-PYTHONPATH=app pytest
+pytest
 ```
 
-##### Run tests on Windows
+or
 
-Command Prompt:
-
-```cmd
-set PYTHONPATH=app && pytest
-```
-
-PowerShell:
-
-```powershell
-$env:PYTHONPATH='app'; pytest
+```bash
+uv run pytest
 ```
 
 All tests must finish successfully.

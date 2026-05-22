@@ -8,6 +8,7 @@ It has a function to calculate the coefficient for any pair and convert a value 
 import dbm
 import datetime
 import logging
+from pathlib import Path
 import requests
 import random
 import asyncio
@@ -18,16 +19,13 @@ from .localcurr import LOCALE_TO_CURRENCY
 from .currdsl import Currency
 from .types import *
 from .exceptions import *
+from ...utils import Lazy
 
-try:
-    from data.currates_conf import CURRENCIES_MAPPING
-except ModuleNotFoundError:
-    # for tests
-    from examples.currates_conf import CURRENCIES_MAPPING
+from ...config.currates_conf import CURRENCIES_MAPPING
 
 __all__ = ['update_rates', 'update_rates_async_loop', 'update_volatile_rates_async_loop', 'convert']
 
-__db = dbm.open('app/data/currates.db', flag='c')
+__db: Lazy = Lazy(lambda: dbm.open(Path(__file__).parent.parent.parent / 'data' / 'currates.db', flag='c'))
 # It's filled in by update_rates() and is used as a cache of sources to fetch data
 # in getter functions if the rates are missing for some reason.
 __src_cache: List[DataSource] = []
@@ -55,7 +53,7 @@ def update_rates(src: Iterable[DataSource]) -> None:
         _logger.info("Filling the cache of currency rates sources...")
         __src_cache = src
 
-    today = datetime.datetime.utcnow().date()
+    today = datetime.datetime.now(datetime.UTC).date()
     volatile = all(x.volatile for x in src)
     if not volatile and 'date' in __db and __db['date'].decode() == str(today):
         _logger.info("The cache already has the actual currency exchange rates. Skipping...")
@@ -185,6 +183,4 @@ def _ensure_not_symbol_or_word(curr: str, lang_code: str) -> Currency:
 
 def _mock_database(temp_file_path: str):
     """Open another file as the cache. Used internally for testing purposes."""
-    global __db
-    __db.close()
-    __db = dbm.open(temp_file_path, 'c')
+    __db._set_for_testing(dbm.open(temp_file_path, 'c'))

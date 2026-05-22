@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
 . venv/bin/activate
-export PYTHONPATH=app
-exec app/bot.py
+exec python -m app.bot

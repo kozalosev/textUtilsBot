@@ -1,4 +1,4 @@
-from strconv.langlayout import LanguageLayoutSwitcher
+from app.strconv.langlayout import LanguageLayoutSwitcher
 
 
 class TestLayoutSwitcher:

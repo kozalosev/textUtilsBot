@@ -1,4 +1,4 @@
-from strconv.util import escape_html
+from app.strconv.util import escape_html
 
 
 def test_escape_html():

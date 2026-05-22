@@ -3,7 +3,7 @@
 import re
 import logging
 from io import StringIO
-from txtproc.abc import TextProcessor
+from ..txtproc.abc import TextProcessor
 from . import currates
 
 _subst_re = re.compile(r"\{\{(?P<expr>[0-9+\-*/%^., ()]+?)? *?"

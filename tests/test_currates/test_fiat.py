@@ -1,6 +1,6 @@
 import datetime
-from strconv import currates
-from strconv.currates.extractors import field, iso_date
+from app.strconv import currates
+from app.strconv.currates.extractors import field, iso_date
 from pathlib import Path
 
 mock_source = currates.DataSource('mock_source', 'http://localhost/fiat',
@@ -11,7 +11,7 @@ mock_cny = 6.826292
 mock_source_json = f"""{{
     "success": true,
     "base": "USD",
-    "date": "{datetime.datetime.utcnow().date().isoformat()}",
+    "date": "{datetime.datetime.now(datetime.UTC).date().isoformat()}",
     "rates": {{
         "USD": 1,
         "RUB": {mock_rub},

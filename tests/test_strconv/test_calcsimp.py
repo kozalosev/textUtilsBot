@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
-from strconv import currates
-from strconv.calcsimp import SingleExpressionCalculator
+from app.strconv import currates
+from app.strconv.calcsimp import SingleExpressionCalculator
 
 from tests.test_currates.test_fiat import mock_source, mock_source_json
 
