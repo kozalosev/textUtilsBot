@@ -1,5 +1,8 @@
 git+https://github.com/szastupov/aiotg@master#egg=aiotg
 aiohttp==3.13.5
 klocmod==0.3.1
-requests==2.33.1
+requests==2.34.2
 prometheus-client==0.25.0
+grpcio==1.80.0
+cachetools==5.5.2   # latest versions are not compatible with asynccache
+asyncache==0.3.1

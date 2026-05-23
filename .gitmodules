@@ -1,0 +1,4 @@
+[submodule "user-service-proto"]
+	path = user-service-proto
+	url = git@github.com:Kozalo-Blog/user-service-proto.git
+	branch = main
