@@ -1,10 +1,13 @@
+import datetime
+
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
-import dto_pb2 as _dto_pb2
+from . import dto_pb2 as _dto_pb2
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -80,4 +83,4 @@ class ActivatePremiumResponse(_message.Message):
     ACTIVE_TILL_FIELD_NUMBER: _ClassVar[int]
     updated: bool
     active_till: _timestamp_pb2.Timestamp
-    def __init__(self, updated: bool = ..., active_till: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(self, updated: bool = ..., active_till: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...

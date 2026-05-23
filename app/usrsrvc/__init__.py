@@ -13,9 +13,7 @@ from .. import config
 # To regenerate gRPC classes:
 #   pip install -r requirements-dev.txt
 #   git submodule update --remote
-#
-#   cd app/usrsrvc
-#   python -m grpc_tools.protoc -I../../user-service-proto --python_out=. --pyi_out=. --grpc_python_out=. ../../user-service-proto/*.proto
+#   python app/usrsrvc/regenerate.py
 
 
 class Client:
