@@ -9,7 +9,7 @@ from klocmod import LocalizationsContainer
 
 from . import msgdb
 from . import strconv
-import usrsrvc
+from .usrsrvc import Client as UserServiceClient
 from .strconv.currates import update_rates_async_loop, update_volatile_rates_async_loop
 from .txtproc import TextProcessorsLoader, TextProcessor, metrics
 from .txtprocutil import resolve_text_processor_name, collect_help_messages, divide_chunks
@@ -22,7 +22,7 @@ DECRYPT_BUTTON_CACHE_TIME = 3600    # in seconds
 
 bot = Bot(api_token=TOKEN, default_in_groups=True)
 localizations = LocalizationsContainer.from_file(Path(__file__).parent / "localizations.ini")
-user_service_client = usrsrvc.Client(GRPC_ADDR_USER_SERVICE)
+user_service_client = UserServiceClient(GRPC_ADDR_USER_SERVICE)
 
 text_processors = TextProcessorsLoader(strconv)
 metrics.register(*text_processors.all_processors)
@@ -125,6 +125,8 @@ async def run() -> None:
     if PROXY:
         from aiohttp_socks import ProxyConnector
         bot._connector = ProxyConnector.from_url(PROXY)
+
+    await user_service_client.connect()
 
     tasks = [asyncio.create_task(t) for t in async_tasks]
     runner = None
